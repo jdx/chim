@@ -177,6 +177,7 @@ jobs:
     environment: Release
     needs: [build]
     container: jdxcode/chim:rpm
+    #if: startsWith(github.event.ref, 'refs/tags/v')
     steps:
       - uses: actions/checkout@v3
       - uses: crazy-max/ghaction-import-gpg@v5
@@ -239,6 +240,7 @@ jobs:
     runs-on: ubuntu-22.04
     environment: Release
     container: jdxcode/chim:deb
+    #if: startsWith(github.event.ref, 'refs/tags/v')
     needs: [build]
     steps:
       - uses: actions/checkout@v3
@@ -306,6 +308,7 @@ jobs:
   release:
     runs-on: ubuntu-22.04
     environment: Release
+    #if: startsWith(github.event.ref, 'refs/tags/v')
     needs:
       - build
       - build-x86_64-pc-windows-gnu
@@ -388,7 +391,6 @@ jobs:
       - name: chim.sh push
         run: git push
         working-directory: chim.sh
-        #if: startsWith(github.event.ref, 'refs/tags/v')
 
       - name: GitHub Release Assets
         uses: softprops/action-gh-release@v1
