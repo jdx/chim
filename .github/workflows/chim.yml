@@ -1,5 +1,3 @@
-name: test
-
 on:
   push:
     branches: [ "main" ]
@@ -284,12 +282,12 @@ jobs:
           cp -v *.deb dist/deb/pool/main
           mkdir -p dist/deb/dists/stable/main/binary-amd64
           mkdir -p dist/deb/dists/stable/main/binary-arm64
-          pushd dist/deb
+          cd dist/deb
           dpkg-scanpackages --arch amd64 pool/ > dists/stable/main/binary-amd64/Packages
           dpkg-scanpackages --arch arm64 pool/ > dists/stable/main/binary-arm64/Packages
           cat dist/deb/dists/stable/main/binary-amd64/Packages | gzip -9c > dists/stable/main/binary-amd64/Packages.gz
           cat dist/deb/dists/stable/main/binary-arm64/Packages | gzip -9c > dists/stable/main/binary-arm64/Packages.gz
-          popd
+          cd ../..
           
           ./packaging/deb/generate-release.sh > dist/deb/dists/stable/Release
           cat dist/deb/dists/stable/Release | gpg -u 7E07A8D14B7A5595 -abs > dist/deb/dists/stable/Release.gpg
