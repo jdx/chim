@@ -1,0 +1,15 @@
+#!/usr/bin/env chim
+[macos-x64]
+url = 'https://nodejs.org/dist/v18.7.0/node-v18.7.0-darwin-arm64.tar.gz'
+path = 'node-v18.7.0-darwin-arm64/bin/node'
+checksum = 'ea24b35067bd0dc40ea8fda1087acc87672cbcbba881f7477dbd432e3c03343d'
+
+[macos-arm64]
+url = 'https://nodejs.org/dist/v18.7.0/node-v18.7.0-darwin-arm64.tar.gz'
+path = 'node-v18.7.0-darwin-arm64/bin/node'
+checksum = 'ea24b35067bd0dc40ea8fda1087acc87672cbcbba881f7477dbd432e3c03343d'
+
+[linux-x64]
+url = 'https://nodejs.org/dist/v18.7.0/node-v18.7.0-linux-x64.tar.xz'
+path = 'node-v18.7.0-linux-x64/bin/node'
+checksum = '8bc6a1b9deaed2586d726fc62d4bee9c1bfc5a30b96c1c4cff7edd15225a11a2'

@@ -1,0 +1,52 @@
+[package]
+name = "chim"
+version = "0.1.0-alpha.9"
+edition = "2021"
+description = "Cross-platform binary shims with optional remote fetching."
+authors = ["Jeff Dickey (@jdxcode)"]
+homepage = "https://chim.sh"
+documentation = "https://chim.sh"
+repository = "https://github.com/chim-sh/chim"
+readme = "README.md"
+license = "MIT"
+keywords = ["shim"]
+categories = ["command-line-utilities", "development-tools::build-utils"]
+publish = false
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+async-trait = "0.1.57"
+bzip2 = "0.4.3"
+#clap = { version = "3.2.17", features = ["derive"] }
+color-eyre = "0.6.2"
+env_logger = "0.9.0"
+exec = {version = "0.3.1", optional = true}
+flate2 = "1.0.24"
+hex = "0.4.3"
+log = "0.4.17"
+reqwest = {version = "0.11.11", features = ["rustls-tls"], default-features = false}
+serde = "1.0.143"
+serde_derive = "1.0.143"
+sha2 = "0.10.2"
+tar = "0.4.38"
+tempfile = "3.3.0"
+tokio = { version = "1.20.1", features = ["full"] }
+toml = "0.5.9"
+#toml_edit = "0.14.4"
+url = "2.2.2"
+xz = "0.1.0"
+
+[features]
+default = ["execvp"]
+execvp = ["dep:exec"]
+
+[package.metadata.release]
+allow-branch = ["master"]
+sign-tag = true
+sign-commit = true
+pre-release-replacements = [
+    {file="README.md", search="^chim [0-9]+.[0-9]+.[0-9]+(-alpha.[0-9]+)?$", replace="chim {{version}}"},
+    {file="rpm/chim.spec", search="^Version: [0-9]+.[0-9]+.[0-9]+(-alpha.[0-9]+)?$", replace="Version: {{version}}"},
+    {file="rpm/Dockerfile", search="^ARG VERSION=[0-9]+.[0-9]+.[0-9]+(-alpha.[0-9]+)?$", replace="ARG VERSION={{version}}"},
+]

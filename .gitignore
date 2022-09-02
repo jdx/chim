@@ -1,0 +1,7 @@
+**/*.rs.bk
+
+/.idea/
+/target/
+/dist/
+/.gpgkey
+/share/chimstrap

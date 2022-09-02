@@ -1,0 +1,11 @@
+#!/usr/bin/env chim
+
+[darwin-arm64]
+url = "abs://chimdev.blob.core.windows.net/chim/node-v18.8.0-darwin-arm64.tar.xz"
+checksum = "a03cb97533447a5005accef871b899df0e9da33d8a805675ac53715a534b3dcb"
+path = "node-v18.8.0-darwin-arm64/bin/node"
+
+[linux-x64]
+url = "abs://chimdev.blob.core.windows.net/chim/node-v18.8.0-linux-x64.tar.xz"
+checksum = "c4add613391e51406caad37fafe12ef67eb53eeff11f233f63cc65e643bf6700"
+path = "node-v18.8.0-linux-x64/bin/node"

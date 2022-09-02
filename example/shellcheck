@@ -1,0 +1,10 @@
+#!/usr/bin/env chim
+[macos-arm64]
+url = 'https://github.com/koalaman/shellcheck/releases/download/v0.8.0/shellcheck-v0.8.0.darwin.x86_64.tar.xz'
+path = 'shellcheck-v0.8.0/shellcheck'
+checksum = 'e065d4afb2620cc8c1d420a9b3e6243c84ff1a693c1ff0e38f279c8f31e86634'
+
+[linux-x64]
+url = 'https://github.com/koalaman/shellcheck/releases/download/v0.8.0/shellcheck-v0.8.0.linux.x86_64.tar.xz'
+path = 'shellcheck-v0.8.0/shellcheck'
+checksum = 'ab6ee1b178f014d1b86d1e24da20d1139656c8b0ed34d2867fbb834dad02bf0a'

@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+set -euxo pipefail
+
+# shellcheck disable=SC2016
+CHIM_VERSION=$(./scripts/get-version) \
+  CHIM_CHECKSUM_LINUX_X86_64=$(grep linux-x86_64 dist/SHASUMS256.txt) \
+  CHIM_CHECKSUM_MACOS_X86_64=$(grep macos-x86_64 dist/SHASUMS256.txt) \
+  CHIM_CHECKSUM_MACOS_ARM64=$(grep macos-arm64 dist/SHASUMS256.txt) \
+  envsubst '$CHIM_VERSION,$CHIM_CHECKSUM_LINUX_X86_64,$CHIM_CHECKSUM_MACOS_X86_64,$CHIM_CHECKSUM_MACOS_ARM64' \
+  < share/chimstrap.envsubst
