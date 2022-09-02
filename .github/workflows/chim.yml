@@ -1,3 +1,5 @@
+name: chim
+
 on:
   push:
     branches: [ "main" ]
@@ -316,7 +318,7 @@ jobs:
           path: chim
       - uses: actions/checkout@v3
         with:
-          repository: chim-sh/chim.sh
+          repository: jdxcode/chim.sh
           path: chim.sh
           token: ${{ secrets.CHIM_GITHUB_BOT_TOKEN }}
       - uses: crazy-max/ghaction-import-gpg@v5
