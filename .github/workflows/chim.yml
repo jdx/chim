@@ -291,9 +291,11 @@ jobs:
           cat dist/deb/dists/stable/main/binary-arm64/Packages | gzip -9c > dists/stable/main/binary-arm64/Packages.gz
           cd ../..
           
-          ./packaging/deb/generate-release.sh > dist/deb/dists/stable/Release
-          cat dist/deb/dists/stable/Release | gpg -u 7E07A8D14B7A5595 -abs > dist/deb/dists/stable/Release.gpg
-          cat dist/deb/dists/stable/Release | gpg -u 7E07A8D14B7A5595 -abs --clearsign > dist/deb/dists/stable/InRelease
+          cd dist/deb/dists/stable
+          $GITHUB_WORKSPACE/packaging/deb/generate-release.sh > Release
+          cat Release | gpg -u 7E07A8D14B7A5595 -abs > Release.gpg
+          cat Release | gpg -u 7E07A8D14B7A5595 -abs --clearsign > InRelease
+          cd $GITHUB_WORKSPACE
 
       - uses: actions/upload-artifact@v3
         with:
