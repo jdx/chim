@@ -96,6 +96,7 @@ fn split_platform_name(name: &str) -> (String, String) {
 fn normalize_os(os: &str) -> &str {
     match os {
         "darwin" => "macos",
+        "win" => "windows",
         _ => os,
     }
 }

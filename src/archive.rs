@@ -38,7 +38,11 @@ pub fn extract(
 
             std::io::copy(&mut input, &mut output)?;
         }
-        config::Archive::Zip => unimplemented!(),
+        config::Archive::Zip => {
+            let input = File::open(filename)?;
+            let mut archive = zip::ZipArchive::new(input)?;
+            archive.extract(destination)?;
+        }
     }
 
     Ok(())

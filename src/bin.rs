@@ -1,6 +1,6 @@
-#[cfg(feature = "execvp")]
+#[cfg(unix)]
 use color_eyre::eyre::eyre;
-use color_eyre::eyre::Result;
+use color_eyre::eyre::{Context, Result};
 use std::process::{exit, Command};
 
 pub fn exec(filename: &str, args: &[String], execvp: bool) -> Result<()> {
@@ -15,7 +15,7 @@ pub fn exec(filename: &str, args: &[String], execvp: bool) -> Result<()> {
     Ok(())
 }
 
-#[cfg(feature = "execvp")]
+#[cfg(unix)]
 fn do_execvp(filename: &str, exec_args: &[String]) -> Result<()> {
     debug!("execvp: {} {}", filename, exec_args.join(" "));
     let err = exec::Command::new(filename).args(exec_args).exec();
@@ -25,14 +25,23 @@ fn do_execvp(filename: &str, exec_args: &[String]) -> Result<()> {
     // .suggestion("Try running with $CHIM_EXECVP=0"))
 }
 
-#[cfg(not(feature = "execvp"))]
+#[cfg(not(unix))]
 fn do_execvp(filename: &str, exec_args: &[String]) -> Result<()> {
     do_subprocess(filename, exec_args)
 }
 
 fn do_subprocess(filename: &str, exec_args: &[String]) -> Result<()> {
     debug!("subprocess: {} {}", filename, exec_args.join(" "));
-    let status = Command::new(filename).args(exec_args).status()?;
+    let status = Command::new(filename)
+        .args(exec_args)
+        .status()
+        .with_context(|| {
+            format!(
+                "Error executing {} with args: {}",
+                filename,
+                exec_args.join(" ")
+            )
+        })?;
 
     debug!("subprocess exited with {status}");
 

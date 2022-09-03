@@ -7,7 +7,7 @@ use color_eyre::Section;
 use sha2::{Digest, Sha256};
 use std::env::consts::{ARCH, OS};
 use std::ffi::OsStr;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 
 #[derive(Debug)]
 pub enum Fetcher {
@@ -118,22 +118,7 @@ fn get_cache_root() -> Result<String> {
     match std::env::var("CHIM_CACHE_DIR") {
         Ok(v) => Ok(v),
         Err(_) => {
-            let base = match std::env::var("XDG_CACHE_HOME") {
-                Ok(v) => Ok::<PathBuf, std::fmt::Error>(PathBuf::from(&v)),
-                Err(_) => {
-                    let home = match std::env::var("HOME") {
-                        Ok(v) => Ok(PathBuf::from(&v)),
-                        Err(_) => Err(eyre!(
-                            "no HOME or XDG_CACHE_HOME environment variable found"
-                        )),
-                    }?;
-
-                    Ok(match OS {
-                        "macos" => home.join("Library/Caches"),
-                        _ => home.join(".cache"),
-                    })
-                }
-            }?;
+            let base = dirs::cache_dir().ok_or_else(|| eyre!("cache dir not found"))?;
             Ok(base.join("chim").into_os_string().into_string().unwrap())
         }
     }
@@ -214,7 +199,7 @@ fn get_path(
                 "path"
             };
 
-            eyre!("no {url_or_path} found in config or {OS}-{ARCH} platform")
+            eyre!("no {url_or_path} found for {OS}-{ARCH} platform")
                 .suggestion(format!("add a {url_or_path} field to chim"))
         })
 }

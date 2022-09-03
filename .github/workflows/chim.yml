@@ -1,3 +1,5 @@
+name: chim
+
 on:
   push:
     branches: [ "main" ]
@@ -10,10 +12,9 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
-  e2e:
+  e2e-linux:
     runs-on: ubuntu-22.04
     needs: [build]
-    environment: E2E
     env:
       AWS_ACCESS_KEY_ID: '${{ secrets.AWS_ACCESS_KEY_ID }}'
       AWS_SECRET_ACCESS_KEY: '${{ secrets.AWS_SECRET_ACCESS_KEY }}'
@@ -26,11 +27,52 @@ jobs:
           path: dist
       # gcloud setup
       - uses: 'google-github-actions/auth@v0'
+        if: ${{ github.repository_owner == 'jdxcode' }}
         with:
           credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
           service_account: 'chim-test@chim-361015.iam.gserviceaccount.com'
       - uses: 'google-github-actions/setup-gcloud@v0'
+        if: github.repository_owner == 'jdxcode'
       - run: tar -C "$HOME" -xvzf dist/chim-$(./scripts/get-version)-linux-x64.tar.gz
+      - run: echo "$HOME/chim/bin" >> $GITHUB_PATH
+      - run: chim -v
+      - run: ./example/shellcheck share/chimstrap.envsubst
+        if: success() || failure()
+      - run: ./example/multiarch abc123
+        if: success() || failure()
+      - run: ./example/node -v
+        if: success() || failure()
+      - run: ./example/gz -v
+        if: success() || failure()
+      - run: ./example/xz -v
+        if: success() || failure()
+      - run: ./example/abs -v
+        if: success() || failure()
+      - run: ./example/s3 -v
+        if: github.repository_owner == 'jdxcode'
+      - run: ./example/gcs -v
+        if: github.repository_owner == 'jdxcode'
+
+  e2e-macos:
+    runs-on: macos-12
+    needs: [build-macos]
+    env:
+      AWS_ACCESS_KEY_ID: '${{ secrets.AWS_ACCESS_KEY_ID }}'
+      AWS_SECRET_ACCESS_KEY: '${{ secrets.AWS_SECRET_ACCESS_KEY }}'
+      AWS_DEFAULT_REGION: us-east-1
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+        with:
+          name: tarball-x86_64-apple-darwin
+          path: dist
+      # gcloud setup
+      - uses: 'google-github-actions/auth@v0'
+        with:
+          credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+          service_account: 'chim-test@chim-361015.iam.gserviceaccount.com'
+      - uses: 'google-github-actions/setup-gcloud@v0'
+      - run: tar -C "$HOME" -xvzf dist/chim-$(./scripts/get-version)-macos-x64.tar.gz
       - run: echo "$HOME/chim/bin" >> $GITHUB_PATH
       - run: chim -v
       - run: ./example/shellcheck share/chimstrap.envsubst
@@ -50,6 +92,20 @@ jobs:
       - run: ./example/abs -v
         if: success() || failure()
 
+  e2e-win:
+    runs-on: windows-latest
+    needs: [build-x86_64-pc-windows-gnu]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+        with:
+          name: setup-x86_64-pc-windows-gnu
+          path: dist
+      - run: dist\chim-setup.exe /SILENT
+      - run: echo "C:\Program Files (x86)\chim\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8
+      - run: chim -v
+      - run: .\example\node -v
+
   unit:
     runs-on: ubuntu-22.04
     steps:
@@ -58,7 +114,7 @@ jobs:
       - uses: actions-rs/cargo@v1
         with: {command: test}
 
-  chimstrap:
+  e2e-chimstrap:
     runs-on: ubuntu-22.04
     needs: [ build ]
     steps:
@@ -97,7 +153,7 @@ jobs:
   build:
     name: build-${{matrix.target}}
     runs-on: ubuntu-22.04
-    #needs: [unit, lint]
+    needs: [unit, lint]
     strategy:
       fail-fast: false
       matrix:
@@ -164,10 +220,16 @@ jobs:
           args: --no-default-features --release
       - run: Invoke-Expression "cargo install cargo-get" -ErrorAction SilentlyContinue
       - run: scripts/build-windows.ps1
+      - run: iscc packaging\win\setup.iss
       - uses: actions/upload-artifact@v3
         with:
           name: tarball-x86_64-pc-windows-gnu
           path: dist/chim-*.zip
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v3
+        with:
+          name: setup-x86_64-pc-windows-gnu
+          path: dist/chim-setup.exe
           if-no-files-found: error
 
   rpm:
@@ -175,6 +237,7 @@ jobs:
     environment: Release
     needs: [build]
     container: jdxcode/chim:rpm
+    if: startsWith(github.event.ref, 'refs/tags/v')
     steps:
       - uses: actions/checkout@v3
       - uses: crazy-max/ghaction-import-gpg@v5
@@ -237,6 +300,7 @@ jobs:
     runs-on: ubuntu-22.04
     environment: Release
     container: jdxcode/chim:deb
+    if: startsWith(github.event.ref, 'refs/tags/v')
     needs: [build]
     steps:
       - uses: actions/checkout@v3
@@ -289,9 +353,11 @@ jobs:
           cat dist/deb/dists/stable/main/binary-arm64/Packages | gzip -9c > dists/stable/main/binary-arm64/Packages.gz
           cd ../..
           
-          ./packaging/deb/generate-release.sh > dist/deb/dists/stable/Release
-          cat dist/deb/dists/stable/Release | gpg -u 7E07A8D14B7A5595 -abs > dist/deb/dists/stable/Release.gpg
-          cat dist/deb/dists/stable/Release | gpg -u 7E07A8D14B7A5595 -abs --clearsign > dist/deb/dists/stable/InRelease
+          cd dist/deb/dists/stable
+          $GITHUB_WORKSPACE/packaging/deb/generate-release.sh > Release
+          cat Release | gpg -u 7E07A8D14B7A5595 -abs > Release.gpg
+          cat Release | gpg -u 7E07A8D14B7A5595 -abs --clearsign > InRelease
+          cd $GITHUB_WORKSPACE
 
       - uses: actions/upload-artifact@v3
         with:
@@ -302,12 +368,12 @@ jobs:
   release:
     runs-on: ubuntu-22.04
     environment: Release
+    if: startsWith(github.event.ref, 'refs/tags/v')
     needs:
-      - build
-      - build-x86_64-pc-windows-gnu
-      - build-macos
-      - e2e
-      - chimstrap
+      - e2e-linux
+      - e2e-win
+      - e2e-macos
+      - e2e-chimstrap
       - rpm
       - deb
     steps:
@@ -316,7 +382,7 @@ jobs:
           path: chim
       - uses: actions/checkout@v3
         with:
-          repository: chim-sh/chim.sh
+          repository: jdxcode/chim.sh
           path: chim.sh
           token: ${{ secrets.CHIM_GITHUB_BOT_TOKEN }}
       - uses: crazy-max/ghaction-import-gpg@v5
@@ -373,18 +439,13 @@ jobs:
           pushd chim.sh
           git config user.name chim-bot
           git config user.email release@chim.sh
-          git add static/chimstrap
-          git add static/releases/$CHIM_VERSION
-          git add static/rpm
-          git add static/deb
           CHIM_VERSION=$(cd ../chim && ./scripts/get-version)
-          git commit -m "$CHIM_VERSION"
+          git add . && git commit -m "$CHIM_VERSION"
           popd
 
       - name: chim.sh push
         run: git push
         working-directory: chim.sh
-        #if: startsWith(github.event.ref, 'refs/tags/v')
 
       - name: GitHub Release Assets
         uses: softprops/action-gh-release@v1
