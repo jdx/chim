@@ -32,8 +32,8 @@ mkdir -p dist/deb/dists/stable/main/binary-arm64
 cd dist/deb
 dpkg-scanpackages --arch amd64 pool/ >dists/stable/main/binary-amd64/Packages
 dpkg-scanpackages --arch arm64 pool/ >dists/stable/main/binary-arm64/Packages
-gzip -9c <dist/deb/dists/stable/main/binary-amd64/Packages >dists/stable/main/binary-amd64/Packages.gz
-gzip -9c <dist/deb/dists/stable/main/binary-arm64/Packages >dists/stable/main/binary-arm64/Packages.gz
+gzip -9c <dists/stable/main/binary-amd64/Packages >dists/stable/main/binary-amd64/Packages.gz
+gzip -9c <dists/stable/main/binary-arm64/Packages >dists/stable/main/binary-arm64/Packages.gz
 cd ../..
 
 cd dist/deb/dists/stable
