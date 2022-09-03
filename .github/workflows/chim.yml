@@ -41,8 +41,22 @@ jobs:
   e2e-linux:
     runs-on: ubuntu-22.04
     needs: [build]
+    env:
+      AWS_ACCESS_KEY_ID: '${{ secrets.AWS_ACCESS_KEY_ID }}'
+      AWS_SECRET_ACCESS_KEY: '${{ secrets.AWS_SECRET_ACCESS_KEY }}'
+      AWS_DEFAULT_REGION: us-east-1
     steps:
       - uses: actions/checkout@v3
+      - uses: 'google-github-actions/auth@v0'
+        if: ${{github.repository_owner == 'jdxcode'}}
+        with:
+          credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+          service_account: 'chim-test@chim-361015.iam.gserviceaccount.com'
+      - uses: 'google-github-actions/setup-gcloud@v0'
+      - uses: actions/download-artifact@v3
+        with:
+          name: tarball-x86_64-apple-darwin
+          path: dist
       - uses: actions/download-artifact@v3
         with:
           name: tarball-x86_64-unknown-linux-gnu
@@ -70,12 +84,26 @@ jobs:
         if: success() || failure()
       - run: ./example/abs -v
         if: success() || failure()
+      - run: ./example/s3 -v
+        if: ${{github.repository_owner == 'jdxcode'}}
+      - run: ./example/gcs -v
+        if: ${{github.repository_owner == 'jdxcode'}}
 
   e2e-macos:
     runs-on: macos-12
     needs: [build-macos]
+    env:
+      AWS_ACCESS_KEY_ID: '${{ secrets.AWS_ACCESS_KEY_ID }}'
+      AWS_SECRET_ACCESS_KEY: '${{ secrets.AWS_SECRET_ACCESS_KEY }}'
+      AWS_DEFAULT_REGION: us-east-1
     steps:
       - uses: actions/checkout@v3
+      - uses: 'google-github-actions/auth@v0'
+        if: ${{github.repository_owner == 'jdxcode'}}
+        with:
+          credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+          service_account: 'chim-test@chim-361015.iam.gserviceaccount.com'
+      - uses: 'google-github-actions/setup-gcloud@v0'
       - uses: actions/download-artifact@v3
         with:
           name: tarball-x86_64-apple-darwin
@@ -95,6 +123,10 @@ jobs:
         if: success() || failure()
       - run: ./example/abs -v
         if: success() || failure()
+      - run: ./example/s3 -v
+        if: ${{github.repository_owner == 'jdxcode'}}
+      - run: ./example/gcs -v
+        if: ${{github.repository_owner == 'jdxcode'}}
 
   e2e-win:
     runs-on: windows-latest
@@ -127,33 +159,6 @@ jobs:
           python3 -m http.server 3000 &
           sleep 1
           ./share/chimstrap.envsubst ./example/node -v
-
-  e2e-aws-gcloud:
-    runs-on: ubuntu-22.04
-    needs: [ build ]
-    if: github.repository_owner == 'jdxcode'
-    env:
-      AWS_ACCESS_KEY_ID: '${{ secrets.AWS_ACCESS_KEY_ID }}'
-      AWS_SECRET_ACCESS_KEY: '${{ secrets.AWS_SECRET_ACCESS_KEY }}'
-      AWS_DEFAULT_REGION: us-east-1
-    steps:
-      - uses: actions/checkout@v3
-      - uses: 'google-github-actions/auth@v0'
-        if: github.repository_owner == 'jdxcode'
-        with:
-          credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
-          service_account: 'chim-test@chim-361015.iam.gserviceaccount.com'
-      - uses: 'google-github-actions/setup-gcloud@v0'
-      - uses: actions/download-artifact@v3
-        with:
-          name: tarball-x86_64-unknown-linux-gnu
-          path: dist
-      - run: tar -C "$HOME" -xvzf dist/chim-$(./scripts/get-version)-linux-x64.tar.gz
-      - run: echo "$HOME/chim/bin" >> $GITHUB_PATH
-      - run: ./example/gcs -v
-        if: success() || failure()
-      - run: ./example/s3 -v
-        if: success() || failure()
 
   build:
     name: build-${{matrix.target}}
