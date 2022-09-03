@@ -49,7 +49,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: 'google-github-actions/auth@v0'
-        if: ${{ !startsWith(github.ref, 'refs/pull/') }}
+        if: ${{ github.event_name != 'pull_request' }}
         with:
           credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
           service_account: 'chim-test@chim-361015.iam.gserviceaccount.com'
@@ -84,9 +84,9 @@ jobs:
       - run: ./example/abs -v
         if: success() || failure()
       - run: ./example/s3 -v
-        if: ${{ !startsWith(github.ref, 'refs/pull/') }}
+        if: ${{ github.event_name != 'pull_request' }}
       - run: ./example/gcs -v
-        if: ${{ !startsWith(github.ref, 'refs/pull/') }}
+        if: github.event_name != 'pull_request'
 
   e2e-macos:
     runs-on: macos-12
@@ -98,7 +98,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: 'google-github-actions/auth@v0'
-        if: ${{ !startsWith(github.ref, 'refs/pull/') }}
+        if: ${{ github.event_name != 'pull_request' }}
         continue-on-error: true
         with:
           credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
@@ -124,9 +124,9 @@ jobs:
       - run: ./example/abs -v
         if: success() || failure()
       - run: ./example/s3 -v
-        if: ${{ !startsWith(github.ref, 'refs/pull/') }}
+        if: ${{ github.event_name != 'pull_request' }}
       - run: ./example/gcs -v
-        if: ${{ !startsWith(github.ref, 'refs/pull/') }}
+        if: ${{ github.event_name != 'pull_request' }}
 
   e2e-win:
     runs-on: windows-latest
@@ -247,7 +247,7 @@ jobs:
     environment: Release
     needs: [build]
     container: jdxcode/chim:rpm
-    if: ${{ !startsWith(github.ref, 'refs/pull/') }}
+    if: ${{ github.event_name != 'pull_request' }}
     steps:
       - uses: actions/checkout@v3
       - uses: crazy-max/ghaction-import-gpg@v5
@@ -272,7 +272,7 @@ jobs:
     runs-on: ubuntu-22.04
     environment: Release
     container: jdxcode/chim:deb
-    if: ${{ !startsWith(github.ref, 'refs/pull/') }}
+    if: ${{ github.event_name != 'pull_request' }}
     needs: [build]
     steps:
       - uses: actions/checkout@v3
