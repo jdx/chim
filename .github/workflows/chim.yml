@@ -57,10 +57,6 @@ jobs:
       - uses: 'google-github-actions/setup-gcloud@v0'
       - uses: actions/download-artifact@v3
         with:
-          name: tarball-x86_64-apple-darwin
-          path: dist
-      - uses: actions/download-artifact@v3
-        with:
           name: tarball-x86_64-unknown-linux-gnu
           path: dist
       - run: tar -C "$HOME" -xvzf dist/chim-$(./scripts/get-version)-linux-x64.tar.gz
