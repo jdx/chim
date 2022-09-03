@@ -57,6 +57,11 @@ jobs:
     needs: [build-x86_64-pc-windows-gnu]
     steps:
       - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+        with:
+          name: setup-x86_64-pc-windows-gnu
+          path: dist
+      - run: dist\chim-setup.exe /SILENT
       - run: chim -v
       - run: chim .\example\node -v
 
