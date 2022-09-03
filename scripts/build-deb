@@ -19,7 +19,7 @@ fpm -s dir -t deb \
 --name chim \
 --license MIT \
 --version "${CHIM_VERSION#v*}" \
---architecture arm64 \
+--architecture aarch64 \
 --description "Cross-platform binary shims with optional remote fetching" \
 --url "https://chim.sh" \
 --maintainer "Jeff Dickey @jdxcode" \
@@ -28,12 +28,12 @@ chim/bin/chim=/usr/bin/chim
 mkdir -p dist/deb/pool/main
 cp -v ./*.deb dist/deb/pool/main
 mkdir -p dist/deb/dists/stable/main/binary-amd64
-mkdir -p dist/deb/dists/stable/main/binary-arm64
+mkdir -p dist/deb/dists/stable/main/binary-aarch64
 cd dist/deb
 dpkg-scanpackages --arch amd64 pool/ >dists/stable/main/binary-amd64/Packages
-dpkg-scanpackages --arch arm64 pool/ >dists/stable/main/binary-arm64/Packages
-gzip -9c <dist/deb/dists/stable/main/binary-amd64/Packages >dists/stable/main/binary-amd64/Packages.gz
-gzip -9c <dist/deb/dists/stable/main/binary-arm64/Packages >dists/stable/main/binary-arm64/Packages.gz
+dpkg-scanpackages --arch aarch64 pool/ >dists/stable/main/binary-aarch64/Packages
+gzip -9c <dists/stable/main/binary-amd64/Packages >dists/stable/main/binary-amd64/Packages.gz
+gzip -9c <dists/stable/main/binary-aarch64/Packages >dists/stable/main/binary-aarch64/Packages.gz
 cd ../..
 
 cd dist/deb/dists/stable
