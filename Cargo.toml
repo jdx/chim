@@ -1,6 +1,6 @@
 [package]
 name = "chim"
-version = "0.1.0-alpha.9"
+version = "0.1.0-alpha.10"
 edition = "2021"
 description = "Cross-platform binary shims with optional remote fetching."
 authors = ["Jeff Dickey (@jdxcode)"]
@@ -56,5 +56,4 @@ sign-commit = true
 pre-release-replacements = [
     {file="README.md", search="^chim [0-9]+.[0-9]+.[0-9]+(-alpha.[0-9]+)?$", replace="chim {{version}}"},
     {file="rpm/chim.spec", search="^Version: [0-9]+.[0-9]+.[0-9]+(-alpha.[0-9]+)?$", replace="Version: {{version}}"},
-    {file="rpm/Dockerfile", search="^ARG VERSION=[0-9]+.[0-9]+.[0-9]+(-alpha.[0-9]+)?$", replace="ARG VERSION={{version}}"},
 ]
