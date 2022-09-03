@@ -15,7 +15,6 @@ jobs:
   e2e-linux:
     runs-on: ubuntu-22.04
     needs: [build]
-    environment: E2E
     env:
       AWS_ACCESS_KEY_ID: '${{ secrets.AWS_ACCESS_KEY_ID }}'
       AWS_SECRET_ACCESS_KEY: '${{ secrets.AWS_SECRET_ACCESS_KEY }}'
@@ -28,10 +27,12 @@ jobs:
           path: dist
       # gcloud setup
       - uses: 'google-github-actions/auth@v0'
+        if: ${{ github.repository_owner == 'jdxcode' }}
         with:
           credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
           service_account: 'chim-test@chim-361015.iam.gserviceaccount.com'
       - uses: 'google-github-actions/setup-gcloud@v0'
+        if: ${{ github.repository_owner == 'jdxcode' }}
       - run: tar -C "$HOME" -xvzf dist/chim-$(./scripts/get-version)-linux-x64.tar.gz
       - run: echo "$HOME/chim/bin" >> $GITHUB_PATH
       - run: chim -v
@@ -42,20 +43,19 @@ jobs:
       - run: ./example/node -v
         if: success() || failure()
       - run: ./example/s3 -v
-        if: success() || failure()
+        if: ${{ github.repository_owner == 'jdxcode' }}
       - run: ./example/gz -v
         if: success() || failure()
       - run: ./example/xz -v
         if: success() || failure()
       - run: ./example/gcs -v
-        if: success() || failure()
+        if: ${{ github.repository_owner == 'jdxcode' }}
       - run: ./example/abs -v
         if: success() || failure()
 
   e2e-macos:
     runs-on: macos-12
     needs: [build-macos]
-    environment: E2E
     env:
       AWS_ACCESS_KEY_ID: '${{ secrets.AWS_ACCESS_KEY_ID }}'
       AWS_SECRET_ACCESS_KEY: '${{ secrets.AWS_SECRET_ACCESS_KEY }}'
@@ -185,7 +185,6 @@ jobs:
     name: build-${{matrix.target}}
     runs-on: macos-12
     needs: [unit, lint]
-    environment: Release
     strategy:
       fail-fast: false
       matrix:
@@ -196,9 +195,6 @@ jobs:
       - uses: actions/checkout@v2
       - uses: Swatinem/rust-cache@v2
         with: {key: "${{matrix.target}}"}
-      - uses: crazy-max/ghaction-import-gpg@v5
-        with:
-          gpg_private_key: ${{ secrets.GPG_KEY }}
       - uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
@@ -241,7 +237,7 @@ jobs:
     environment: Release
     needs: [build]
     container: jdxcode/chim:rpm
-    #if: startsWith(github.event.ref, 'refs/tags/v')
+    if: startsWith(github.event.ref, 'refs/tags/v')
     steps:
       - uses: actions/checkout@v3
       - uses: crazy-max/ghaction-import-gpg@v5
@@ -304,7 +300,7 @@ jobs:
     runs-on: ubuntu-22.04
     environment: Release
     container: jdxcode/chim:deb
-    #if: startsWith(github.event.ref, 'refs/tags/v')
+    if: startsWith(github.event.ref, 'refs/tags/v')
     needs: [build]
     steps:
       - uses: actions/checkout@v3
@@ -372,7 +368,7 @@ jobs:
   release:
     runs-on: ubuntu-22.04
     environment: Release
-    #if: startsWith(github.event.ref, 'refs/tags/v')
+    if: startsWith(github.event.ref, 'refs/tags/v')
     needs:
       - e2e-linux
       - e2e-win
