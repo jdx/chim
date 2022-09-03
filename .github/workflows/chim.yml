@@ -63,7 +63,7 @@ jobs:
           path: dist
       - run: dist\chim-setup.exe /SILENT
       - run: chim -v
-      - run: chim .\example\node -v
+      - run: .\example\node -v
 
   unit:
     runs-on: ubuntu-22.04
