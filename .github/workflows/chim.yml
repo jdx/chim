@@ -107,7 +107,7 @@ jobs:
   build:
     name: build-${{matrix.target}}
     runs-on: ubuntu-22.04
-    #needs: [unit, lint]
+    needs: [unit, lint]
     strategy:
       fail-fast: false
       matrix:
