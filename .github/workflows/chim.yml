@@ -68,7 +68,7 @@ jobs:
       - uses: actions-rs/cargo@v1
         with: {command: test}
 
-  chimstrap:
+  e2e-chimstrap:
     runs-on: ubuntu-22.04
     needs: [ build ]
     steps:
@@ -322,11 +322,9 @@ jobs:
     environment: Release
     #if: startsWith(github.event.ref, 'refs/tags/v')
     needs:
-      - build
-      - build-x86_64-pc-windows-gnu
-      - build-macos
       - e2e
-      - chimstrap
+      - e2e-win
+      - e2e-chimstrap
       - rpm
       - deb
     steps:
