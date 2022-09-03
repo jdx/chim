@@ -1,2 +1,2 @@
 example/.bin filter=lfs diff=lfs merge=lfs -text
-packaging/macos/macos.developerprofile.gpg filter=lfs diff=lfs merge=lfs -text
+packaging/macos/chim.provisioningprofile.gpg filter=lfs diff=lfs merge=lfs -text
