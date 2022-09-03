@@ -131,6 +131,7 @@ jobs:
     name: build-${{matrix.target}}
     runs-on: macos-12
     needs: [unit, lint]
+    environment: Release
     strategy:
       fail-fast: false
       matrix:
