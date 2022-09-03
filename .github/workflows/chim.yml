@@ -322,7 +322,7 @@ jobs:
           workdir: chim.sh
       - uses: actions/download-artifact@v3
         with: {path: artifacts}
-      - run: scripts/release
+      - run: chim/scripts/release
       - name: chim.sh push
         run: git push
         working-directory: chim.sh
