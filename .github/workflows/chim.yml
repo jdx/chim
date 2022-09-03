@@ -49,7 +49,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: 'google-github-actions/auth@v0'
-        if: ${{github.repository_owner == 'jdxcode'}}
+        if: github.actor == 'jdxcode'
         with:
           credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
           service_account: 'chim-test@chim-361015.iam.gserviceaccount.com'
@@ -83,9 +83,9 @@ jobs:
       - run: ./example/abs -v
         if: success() || failure()
       - run: ./example/s3 -v
-        if: ${{github.repository_owner == 'jdxcode'}}
+        if: github.actor == 'jdxcode'
       - run: ./example/gcs -v
-        if: ${{github.repository_owner == 'jdxcode'}}
+        if: github.actor == 'jdxcode'
 
   e2e-macos:
     runs-on: macos-12
@@ -97,7 +97,7 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: 'google-github-actions/auth@v0'
-        if: github.repository_owner == 'jdxcode'
+        if: ${{github.actor == 'jdxcode'}}
         continue-on-error: true
         with:
           credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
@@ -123,9 +123,9 @@ jobs:
       - run: ./example/abs -v
         if: success() || failure()
       - run: ./example/s3 -v
-        if: ${{github.repository_owner == 'jdxcode'}}
+        if: ${{github.actor == 'jdxcode'}}
       - run: ./example/gcs -v
-        if: ${{github.repository_owner == 'jdxcode'}}
+        if: github.actor == 'jdxcode'
 
   e2e-win:
     runs-on: windows-latest
