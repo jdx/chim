@@ -7,7 +7,7 @@ path = "node-v18.8.0-darwin-arm64/bin/node"
 
 [macos-x64]
 url = "gs://chim/node-v18.8.0-darwin-x64.tar.xz"
-checksum = "a03cb97533447a5005accef871b899df0e9da33d8a805675ac53715a534b3dcb"
+checksum = "f8527a1820f50a5f4c835d933e5c5318c4f93f7382294db5875791e2cb0cc4fa"
 path = "node-v18.8.0-darwin-x64/bin/node"
 
 [linux-x64]
