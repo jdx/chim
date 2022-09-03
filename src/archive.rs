@@ -3,7 +3,7 @@ use bzip2::read::BzDecoder;
 use color_eyre::Result;
 use flate2::read::GzDecoder;
 use std::fs::{create_dir_all, File};
-use std::io::{Read};
+use std::io::Read;
 use std::path::Path;
 use tar::Archive;
 use xz::read::XzDecoder;
@@ -42,7 +42,7 @@ pub fn extract(
             let input = File::open(filename)?;
             let mut archive = zip::ZipArchive::new(input)?;
             archive.extract(destination)?;
-        },
+        }
     }
 
     Ok(())
