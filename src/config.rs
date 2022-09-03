@@ -7,7 +7,7 @@ use color_eyre::Section;
 use sha2::{Digest, Sha256};
 use std::env::consts::{ARCH, OS};
 use std::ffi::OsStr;
-use std::path::{Path};
+use std::path::Path;
 
 #[derive(Debug)]
 pub enum Fetcher {

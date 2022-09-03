@@ -1,6 +1,6 @@
 #[cfg(unix)]
-use color_eyre::eyre::{eyre};
-use color_eyre::eyre::{Result, Context};
+use color_eyre::eyre::eyre;
+use color_eyre::eyre::{Context, Result};
 use std::process::{exit, Command};
 
 pub fn exec(filename: &str, args: &[String], execvp: bool) -> Result<()> {
@@ -32,11 +32,16 @@ fn do_execvp(filename: &str, exec_args: &[String]) -> Result<()> {
 
 fn do_subprocess(filename: &str, exec_args: &[String]) -> Result<()> {
     debug!("subprocess: {} {}", filename, exec_args.join(" "));
-    let status = Command::new(filename).args(exec_args).status().with_context(|| format!(
-        "Error executing {} with args: {}",
-        filename,
-        exec_args.join(" ")
-    ))?;
+    let status = Command::new(filename)
+        .args(exec_args)
+        .status()
+        .with_context(|| {
+            format!(
+                "Error executing {} with args: {}",
+                filename,
+                exec_args.join(" ")
+            )
+        })?;
 
     debug!("subprocess exited with {status}");
 
