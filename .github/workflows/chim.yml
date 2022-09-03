@@ -32,7 +32,7 @@ jobs:
           credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
           service_account: 'chim-test@chim-361015.iam.gserviceaccount.com'
       - uses: 'google-github-actions/setup-gcloud@v0'
-        if: ${{ github.repository_owner == 'jdxcode' }}
+        if: github.repository_owner == 'jdxcode'
       - run: tar -C "$HOME" -xvzf dist/chim-$(./scripts/get-version)-linux-x64.tar.gz
       - run: echo "$HOME/chim/bin" >> $GITHUB_PATH
       - run: chim -v
@@ -42,16 +42,16 @@ jobs:
         if: success() || failure()
       - run: ./example/node -v
         if: success() || failure()
-      - run: ./example/s3 -v
-        if: ${{ github.repository_owner == 'jdxcode' }}
       - run: ./example/gz -v
         if: success() || failure()
       - run: ./example/xz -v
         if: success() || failure()
-      - run: ./example/gcs -v
-        if: ${{ github.repository_owner == 'jdxcode' }}
       - run: ./example/abs -v
         if: success() || failure()
+      - run: ./example/s3 -v
+        if: github.repository_owner == 'jdxcode'
+      - run: ./example/gcs -v
+        if: github.repository_owner == 'jdxcode'
 
   e2e-macos:
     runs-on: macos-12
