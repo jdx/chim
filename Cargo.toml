@@ -36,7 +36,7 @@ toml = "0.5.9"
 url = "2.2.2"
 xz = "0.1.0"
 
-#[cfg(unix)]
+[target.'cfg(unix)'.dependencies]
 exec = "0.3.1"
 
 [package.metadata.release]
