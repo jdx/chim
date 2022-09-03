@@ -179,14 +179,15 @@ jobs:
           target: ${{matrix.target}}
           override: true
       - run: cargo build --release --target ${{matrix.target}}
-#      - name: Notarize
-#        run: |
-#          set -x
-#          security find-identity -p basic -v
-#          #xcrun notarytool store-credentials
-#          xcrun notarytool submit target/${{matrix.target}}/release/chim \
-#            --keychain-profile app-signing --wait
       - run: scripts/build-tarball ${{matrix.target}}
+      - name: Zip
+        run: |
+          set -x
+          ZIP=$(scripts/build-zip ${{matrix.target}})
+          security find-identity -p basic -v
+          #xcrun notarytool store-credentials
+          xcrun notarytool submit $ZIP \
+            --keychain-profile app-signing --wait
       - uses: actions/upload-artifact@v3
         with:
           name: tarball-${{matrix.target}}
