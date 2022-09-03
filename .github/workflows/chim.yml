@@ -52,6 +52,14 @@ jobs:
       - run: ./example/abs -v
         if: success() || failure()
 
+  e2e-win:
+    runs-on: windows-latest
+    needs: [build-x86_64-pc-windows-gnu]
+    steps:
+      - uses: actions/checkout@v3
+      - run: chim -v
+      - run: chim .\example\node -v
+
   unit:
     runs-on: ubuntu-22.04
     steps:
