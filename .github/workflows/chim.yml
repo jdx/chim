@@ -62,9 +62,12 @@ jobs:
           name: setup-x86_64-pc-windows-gnu
           path: dist
       - run: dist\chim-setup.exe /SILENT
-      - run: echo "##[add-path]C:\Program Files (x86)\chim\bin"
-      - run: chim -v
-      - run: .\example\node -v
+      - run: echo "C:\Program Files (x86)\chim\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8
+      - run: |
+          set -x
+          echo "$env:PATH"
+          chim -v
+          .\example\node -v
 
   unit:
     runs-on: ubuntu-22.04
