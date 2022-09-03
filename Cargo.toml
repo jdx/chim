@@ -1,6 +1,6 @@
 [package]
 name = "chim"
-version = "0.1.0-alpha.11"
+version = "0.1.0-alpha.12"
 edition = "2021"
 description = "Cross-platform binary shims with optional remote fetching."
 authors = ["Jeff Dickey (@jdxcode)"]
