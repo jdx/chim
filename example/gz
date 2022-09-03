@@ -7,4 +7,4 @@ checksum = "8c5f81535007c5f3584729b9b5d3d45b52035be6edf5fb9374962f164e249b28"
 
 [linux-x64]
 url = "https://chim.s3.amazonaws.com/node-v18.8.0-linux-x64.gz"
-checksum = "44fd49378710695cf2fb9d4711a159e918394fb69ade55715e95840dbef702b2"
+checksum = "4b48bd867dca66c2db58e0d3d50480363d3402b51783d4bef3ebfaa28ffa1c0a"
