@@ -261,9 +261,7 @@ jobs:
         with:
           name: tarball-aarch64-unknown-linux-gnu
           path: dist
-      - name: Build RPMs
-        run: |
-
+      - run: scripts/build-rpm
       - uses: actions/upload-artifact@v3
         with:
           name: rpm
