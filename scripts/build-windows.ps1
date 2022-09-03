@@ -1,5 +1,3 @@
-Set-PSDebug -Trace 1
-
 Get-ChildItem target\release
 New-Item dist\chim\bin -ItemType Directory -ea 0
 Move-Item target\release\chim.exe dist\chim\bin\chim.exe
