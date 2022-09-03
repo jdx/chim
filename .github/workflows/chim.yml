@@ -178,10 +178,16 @@ jobs:
           args: --no-default-features --release
       - run: Invoke-Expression "cargo install cargo-get" -ErrorAction SilentlyContinue
       - run: scripts/build-windows.ps1
+      - run: iscc packaging\win\setup.iss
       - uses: actions/upload-artifact@v3
         with:
           name: tarball-x86_64-pc-windows-gnu
           path: dist/chim-*.zip
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v3
+        with:
+          name: setup-x86_64-pc-windows-gnu
+          path: dist/chim-setup.exe
           if-no-files-found: error
 
   rpm:

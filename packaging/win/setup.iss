@@ -10,6 +10,7 @@ AppSupportURL=https://chim.sh/
 DefaultDirName={autopf}\chim
 SourceDir=..\..
 OutputBaseFilename=chim-setup
+OutputDir=dist
 AppId=chim
 ChangesEnvironment=True
 
