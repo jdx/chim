@@ -397,12 +397,8 @@ jobs:
           pushd chim.sh
           git config user.name chim-bot
           git config user.email release@chim.sh
-          git add static/chimstrap
-          git add static/releases/$CHIM_VERSION
-          git add static/rpm
-          git add static/deb
           CHIM_VERSION=$(cd ../chim && ./scripts/get-version)
-          git commit -m "$CHIM_VERSION"
+          git add . && git commit -m "$CHIM_VERSION"
           popd
 
       - name: chim.sh push
