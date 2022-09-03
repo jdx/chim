@@ -36,8 +36,16 @@ jobs:
       - run: tar -C "$HOME" -xvzf dist/chim-$(./scripts/get-version)-linux-x64.tar.gz
       - run: echo "$HOME/chim/bin" >> $GITHUB_PATH
       - run: chim -v
-      - run: ./example/shellcheck share/chimstrap.envsubst
+      - name: shellcheck
         if: success() || failure()
+        run: |
+          ./example/shellcheck       \
+            share/chimstrap.envsubst \
+            scripts/build-deb        \
+            scripts/build-rpm        \
+            scripts/build-tarball    \
+            scripts/get-version      \
+            scripts/render-chimstrap
       - run: ./example/multiarch abc123
         if: success() || failure()
       - run: ./example/node -v
@@ -315,50 +323,7 @@ jobs:
         with:
           name: tarball-aarch64-unknown-linux-gnu
           path: dist
-      - name: Build DEBs
-        run: |
-          set -x
-          CHIM_VERSION=$(./scripts/get-version)
-          
-          tar -xvzf dist/chim-$CHIM_VERSION-linux-x64.tar.gz
-          fpm -s dir -t deb \
-          --name chim \
-          --license MIT \
-          --version ${CHIM_VERSION#v*} \
-          --architecture amd64 \
-          --description "Cross-platform binary shims with optional remote fetching" \
-          --url "https://chim.sh" \
-          --maintainer "Jeff Dickey @jdxcode" \
-          chim/bin/chim=/usr/bin/chim
-          
-          tar -xvzf dist/chim-$CHIM_VERSION-linux-arm64.tar.gz
-          fpm -s dir -t deb \
-          --name chim \
-          --license MIT \
-          --version ${CHIM_VERSION#v*} \
-          --architecture arm64 \
-          --description "Cross-platform binary shims with optional remote fetching" \
-          --url "https://chim.sh" \
-          --maintainer "Jeff Dickey @jdxcode" \
-          chim/bin/chim=/usr/bin/chim
-          
-          mkdir -p dist/deb/pool/main
-          cp -v *.deb dist/deb/pool/main
-          mkdir -p dist/deb/dists/stable/main/binary-amd64
-          mkdir -p dist/deb/dists/stable/main/binary-arm64
-          cd dist/deb
-          dpkg-scanpackages --arch amd64 pool/ > dists/stable/main/binary-amd64/Packages
-          dpkg-scanpackages --arch arm64 pool/ > dists/stable/main/binary-arm64/Packages
-          cat dist/deb/dists/stable/main/binary-amd64/Packages | gzip -9c > dists/stable/main/binary-amd64/Packages.gz
-          cat dist/deb/dists/stable/main/binary-arm64/Packages | gzip -9c > dists/stable/main/binary-arm64/Packages.gz
-          cd ../..
-          
-          cd dist/deb/dists/stable
-          $GITHUB_WORKSPACE/packaging/deb/generate-release.sh > Release
-          cat Release | gpg -u 7E07A8D14B7A5595 -abs > Release.gpg
-          cat Release | gpg -u 7E07A8D14B7A5595 -abs --clearsign > InRelease
-          cd $GITHUB_WORKSPACE
-
+      - run: scripts/build-deb
       - uses: actions/upload-artifact@v3
         with:
           name: deb
@@ -393,56 +358,7 @@ jobs:
           workdir: chim.sh
       - uses: actions/download-artifact@v3
         with: {path: artifacts}
-      - name: Release
-        run: |
-          set -x
-          CHIM_VERSION=$(cd chim && ./scripts/get-version)
-          RELEASE_DIR=chim.sh/static/releases/$CHIM_VERSION
-          rm -rf "$RELEASE_DIR"
-          mkdir -p "$RELEASE_DIR"
-          
-          cp artifacts/tarball-x86_64-pc-windows-gnu/*.zip "$RELEASE_DIR"
-          cp artifacts/tarball-x86_64-pc-windows-gnu/*.zip chim.sh/static/releases/chim-latest-windows.zip
-          cp artifacts/tarball-x86_64-unknown-linux-gnu/*.tar.gz "$RELEASE_DIR"
-          cp artifacts/tarball-x86_64-unknown-linux-gnu/*.tar.gz chim.sh/static/releases/chim-latest-linux-x64.tar.gz
-          cp artifacts/tarball-aarch64-unknown-linux-gnu/*.tar.gz "$RELEASE_DIR"
-          cp artifacts/tarball-aarch64-unknown-linux-gnu/*.tar.gz chim.sh/static/releases/chim-latest-linux-arm64.tar.gz
-          cp artifacts/tarball-x86_64-apple-darwin/*.tar.gz "$RELEASE_DIR"
-          cp artifacts/tarball-x86_64-apple-darwin/*.tar.gz chim.sh/static/releases/chim-latest-macos-x64.tar.gz
-          cp artifacts/tarball-aarch64-apple-darwin/*.tar.gz "$RELEASE_DIR"
-          cp artifacts/tarball-aarch64-apple-darwin/*.tar.gz chim.sh/static/releases/chim-latest-macos-arm64.tar.gz
-          
-          pushd chim.sh/static/releases
-          sha256sum *.zip *.tar.gz > SHASUMS256.txt
-          gpg --clearsign -u 7E07A8D14B7A5595 < SHASUMS256.txt > SHASUMS256.asc
-          popd
-          
-          pushd "$RELEASE_DIR"
-          sha256sum ./* > SHASUMS256.txt
-          gpg --clearsign -u 7E07A8D14B7A5595 < SHASUMS256.txt > SHASUMS256.asc
-          popd
-          
-          CHIM_VERSION=$CHIM_VERSION \
-            CHIM_CHECKSUM_LINUX_X86_64=$(grep linux-x64 $RELEASE_DIR/SHASUMS256.txt) \
-            CHIM_CHECKSUM_LINUX_ARM64=$(grep linux-arm64 $RELEASE_DIR/SHASUMS256.txt) \
-            CHIM_CHECKSUM_MACOS_X86_64=$(grep macos-x64 $RELEASE_DIR/SHASUMS256.txt) \
-            CHIM_CHECKSUM_MACOS_ARM64=$(grep macos-arm64 $RELEASE_DIR/SHASUMS256.txt) \
-            envsubst '$CHIM_VERSION,$CHIM_CHECKSUM_LINUX_X86_64,$CHIM_CHECKSUM_LINUX_ARM64,$CHIM_CHECKSUM_MACOS_X86_64,$CHIM_CHECKSUM_MACOS_ARM64' \
-            > chim.sh/static/chimstrap < chim/share/chimstrap.envsubst
-          
-          rm -rf chim.sh/static/rpm
-          mv artifacts/rpm chim.sh/static/rpm
-          
-          rm -rf chim.sh/static/deb
-          mv artifacts/deb chim.sh/static/deb
-          
-          pushd chim.sh
-          git config user.name chim-bot
-          git config user.email release@chim.sh
-          CHIM_VERSION=$(cd ../chim && ./scripts/get-version)
-          git add . && git commit -m "$CHIM_VERSION"
-          popd
-
+      - run: scripts/build-rpm
       - name: chim.sh push
         run: git push
         working-directory: chim.sh
