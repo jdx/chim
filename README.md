@@ -24,6 +24,12 @@ checksum = 'ea24b35067bd0dc40ea8fda1087acc87672cbcbba881f7477dbd432e3c03343d'
 [linux-x64]
 url = 'https://nodejs.org/dist/v18.7.0/node-v18.7.0-linux-x64.tar.xz'
 path = 'node-v18.7.0-linux-x64/bin/node'
+checksum = '8bc6a1b9deaed2586d726fc62d4bee9c1bfc5a30b96c1c4cff7edd15225a11a2'
+
+[windows-x64]
+url = 'https://nodejs.org/dist/v18.7.0/node-v18.7.0-win-x64.zip'
+path = 'node-v18.7.0-win-x64\node.exe'
+checksum = '9c0abfe32291dd5bed717463cb3590004289f03ab66011e383daa0fcec674683'
 ```
 
 Now make it executable and run it:
