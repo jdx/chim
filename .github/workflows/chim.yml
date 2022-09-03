@@ -103,8 +103,8 @@ jobs:
           path: dist
       - run: dist\chim-setup.exe /SILENT
       - run: echo "C:\Program Files (x86)\chim\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8
-      - run: |
-          set -x
+      - name: Test
+        run: |
           echo "$env:PATH"
           chim -v
           .\example\node -v
