@@ -12,7 +12,7 @@ checksum = 'ea24b35067bd0dc40ea8fda1087acc87672cbcbba881f7477dbd432e3c03343d'
 [darwin-x86_64]
 url = 'https://nodejs.org/dist/v18.7.0/node-v18.7.0-darwin-x64.tar.gz'
 path = 'node-v18.7.0-darwin-x64/bin/node'
-checksum = 'ea24b35067bd0dc40ea8fda1087acc87672cbcbba881f7477dbd432e3c03343d'
+checksum = 'ce95b924b450edbcfeaf422b3635a6b44b17ad23cd1f5efff6b051c60db548c8'
 
 [linux-x64]
 url = 'https://nodejs.org/dist/v18.7.0/node-v18.7.0-linux-x64.tar.xz'
