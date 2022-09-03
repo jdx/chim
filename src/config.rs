@@ -199,7 +199,7 @@ fn get_path(
                 "path"
             };
 
-            eyre!("no {url_or_path} found in config or {OS}-{ARCH} platform")
+            eyre!("no {url_or_path} found for {OS}-{ARCH} platform")
                 .suggestion(format!("add a {url_or_path} field to chim"))
         })
 }
