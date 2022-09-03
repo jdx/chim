@@ -12,26 +12,41 @@ env:
   CARGO_TERM_COLOR: always
 
 jobs:
+  unit:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - uses: Swatinem/rust-cache@v2
+      - uses: actions-rs/cargo@v1
+        with: {command: test}
+  lint:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v1
+      - uses: Swatinem/rust-cache@v2
+      - run: rustup component add clippy
+      - uses: actions-rs/clippy-check@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          args: --all-features
+      - uses: actions-rs/cargo@v1
+        with:
+          command: fmt
+          args: --all -- --check
+      - uses: actions-rs/audit-check@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+
   e2e-linux:
     runs-on: ubuntu-22.04
     needs: [build]
-    env:
-      AWS_ACCESS_KEY_ID: '${{ secrets.AWS_ACCESS_KEY_ID }}'
-      AWS_SECRET_ACCESS_KEY: '${{ secrets.AWS_SECRET_ACCESS_KEY }}'
-      AWS_DEFAULT_REGION: us-east-1
     steps:
       - uses: actions/checkout@v3
       - uses: actions/download-artifact@v3
         with:
           name: tarball-x86_64-unknown-linux-gnu
           path: dist
-      # gcloud setup
-      - uses: 'google-github-actions/auth@v0'
-        if: github.repository_owner == 'jdxcode'
-        with:
-          credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
-          service_account: 'chim-test@chim-361015.iam.gserviceaccount.com'
-      - uses: 'google-github-actions/setup-gcloud@v0'
       - run: tar -C "$HOME" -xvzf dist/chim-$(./scripts/get-version)-linux-x64.tar.gz
       - run: echo "$HOME/chim/bin" >> $GITHUB_PATH
       - run: chim -v
@@ -55,31 +70,16 @@ jobs:
         if: success() || failure()
       - run: ./example/abs -v
         if: success() || failure()
-      - run: ./example/s3 -v
-        if: github.repository_owner == 'jdxcode'
-      - run: ./example/gcs -v
-        if: github.repository_owner == 'jdxcode'
 
   e2e-macos:
     runs-on: macos-12
     needs: [build-macos]
-    env:
-      AWS_ACCESS_KEY_ID: '${{ secrets.AWS_ACCESS_KEY_ID }}'
-      AWS_SECRET_ACCESS_KEY: '${{ secrets.AWS_SECRET_ACCESS_KEY }}'
-      AWS_DEFAULT_REGION: us-east-1
     steps:
       - uses: actions/checkout@v3
       - uses: actions/download-artifact@v3
         with:
           name: tarball-x86_64-apple-darwin
           path: dist
-      # gcloud setup
-      - uses: 'google-github-actions/auth@v0'
-        if: github.repository_owner == 'jdxcode'
-        with:
-          credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
-          service_account: 'chim-test@chim-361015.iam.gserviceaccount.com'
-      - uses: 'google-github-actions/setup-gcloud@v0'
       - run: tar -C "$HOME" -xvzf dist/chim-$(./scripts/get-version)-macos-x64.tar.gz
       - run: echo "$HOME/chim/bin" >> $GITHUB_PATH
       - run: chim -v
@@ -89,13 +89,9 @@ jobs:
         if: success() || failure()
       - run: ./example/node -v
         if: success() || failure()
-      - run: ./example/s3 -v
-        if: success() || failure()
       - run: ./example/gz -v
         if: success() || failure()
       - run: ./example/xz -v
-        if: success() || failure()
-      - run: ./example/gcs -v
         if: success() || failure()
       - run: ./example/abs -v
         if: success() || failure()
@@ -113,14 +109,6 @@ jobs:
       - run: echo "C:\Program Files (x86)\chim\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8
       - run: chim -v
       - run: .\example\node -v
-
-  unit:
-    runs-on: ubuntu-22.04
-    steps:
-      - uses: actions/checkout@v3
-      - uses: Swatinem/rust-cache@v2
-      - uses: actions-rs/cargo@v1
-        with: {command: test}
 
   e2e-chimstrap:
     runs-on: ubuntu-22.04
@@ -140,23 +128,32 @@ jobs:
           sleep 1
           ./share/chimstrap.envsubst ./example/node -v
 
-  lint:
+  e2e-aws-gcloud:
     runs-on: ubuntu-22.04
+    needs: [ build ]
+    if: github.repository_owner == 'jdxcode'
+    env:
+      AWS_ACCESS_KEY_ID: '${{ secrets.AWS_ACCESS_KEY_ID }}'
+      AWS_SECRET_ACCESS_KEY: '${{ secrets.AWS_SECRET_ACCESS_KEY }}'
+      AWS_DEFAULT_REGION: us-east-1
     steps:
-      - uses: actions/checkout@v1
-      - uses: Swatinem/rust-cache@v2
-      - run: rustup component add clippy
-      - uses: actions-rs/clippy-check@v1
+      - uses: actions/checkout@v3
+      - uses: 'google-github-actions/auth@v0'
+        if: github.repository_owner == 'jdxcode'
         with:
-          token: ${{ secrets.GITHUB_TOKEN }}
-          args: --all-features
-      - uses: actions-rs/cargo@v1
+          credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+          service_account: 'chim-test@chim-361015.iam.gserviceaccount.com'
+      - uses: 'google-github-actions/setup-gcloud@v0'
+      - uses: actions/download-artifact@v3
         with:
-          command: fmt
-          args: --all -- --check
-      - uses: actions-rs/audit-check@v1
-        with:
-          token: ${{ secrets.GITHUB_TOKEN }}
+          name: tarball-x86_64-unknown-linux-gnu
+          path: dist
+      - run: tar -C "$HOME" -xvzf dist/chim-$(./scripts/get-version)-linux-x64.tar.gz
+      - run: echo "$HOME/chim/bin" >> $GITHUB_PATH
+      - run: ./example/gcs -v
+        if: success() || failure()
+      - run: ./example/s3 -v
+        if: success() || failure()
 
   build:
     name: build-${{matrix.target}}
