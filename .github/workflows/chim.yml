@@ -381,7 +381,6 @@ jobs:
       - e2e-win
       - e2e-macos
       - e2e-chimstrap
-      - build-macos
       - rpm
       - deb
     steps:
