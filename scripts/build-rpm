@@ -1,50 +1,38 @@
 #!/usr/bin/env bash
 set -euxo pipefail
 
-CHIM_VERSION=$(cd chim && ./scripts/get-version)
-RELEASE_DIR=chim.sh/static/releases/$CHIM_VERSION
-rm -rf "$RELEASE_DIR"
-mkdir -p "$RELEASE_DIR"
+CHIM_VERSION=$(./scripts/get-version)
 
-cp artifacts/tarball-x86_64-pc-windows-gnu/*.zip "$RELEASE_DIR"
-cp artifacts/tarball-x86_64-pc-windows-gnu/*.zip chim.sh/static/releases/chim-latest-windows.zip
-cp artifacts/tarball-x86_64-unknown-linux-gnu/*.tar.gz "$RELEASE_DIR"
-cp artifacts/tarball-x86_64-unknown-linux-gnu/*.tar.gz chim.sh/static/releases/chim-latest-linux-x64.tar.gz
-cp artifacts/tarball-aarch64-unknown-linux-gnu/*.tar.gz "$RELEASE_DIR"
-cp artifacts/tarball-aarch64-unknown-linux-gnu/*.tar.gz chim.sh/static/releases/chim-latest-linux-arm64.tar.gz
-cp artifacts/tarball-x86_64-apple-darwin/*.tar.gz "$RELEASE_DIR"
-cp artifacts/tarball-x86_64-apple-darwin/*.tar.gz chim.sh/static/releases/chim-latest-macos-x64.tar.gz
-cp artifacts/tarball-aarch64-apple-darwin/*.tar.gz "$RELEASE_DIR"
-cp artifacts/tarball-aarch64-apple-darwin/*.tar.gz chim.sh/static/releases/chim-latest-macos-arm64.tar.gz
+tar -xvzf "dist/chim-$CHIM_VERSION-linux-x64.tar.gz"
+fpm -s dir -t rpm \
+--name chim \
+--license MIT \
+--version "${CHIM_VERSION#v*}" \
+--architecture x86_64 \
+--description "Cross-platform binary shims with optional remote fetching" \
+--url "https://chim.sh" \
+--maintainer "Jeff Dickey @jdxcode" \
+chim/bin/chim=/usr/bin/chim
 
-pushd chim.sh/static/releases
-sha256sum ./*.zip ./*.tar.gz > SHASUMS256.txt
-gpg --clearsign -u 7E07A8D14B7A5595 < SHASUMS256.txt > SHASUMS256.asc
-popd
+tar -xvzf "dist/chim-$CHIM_VERSION-linux-arm64.tar.gz"
+fpm -s dir -t rpm \
+--name chim \
+--license MIT \
+--version "${CHIM_VERSION#v*}" \
+--architecture aarch64 \
+--description "Cross-platform binary shims with optional remote fetching" \
+--url "https://chim.sh" \
+--maintainer "Jeff Dickey @jdxcode" \
+chim/bin/chim=/usr/bin/chim
 
-pushd "$RELEASE_DIR"
-sha256sum ./* > SHASUMS256.txt
-gpg --clearsign -u 7E07A8D14B7A5595 < SHASUMS256.txt > SHASUMS256.asc
-popd
+cat <<EOF > ~/.rpmmacros
+%_signature gpg
+%_gpg_name 7E07A8D14B7A5595
+EOF
 
-# shellcheck disable=SC2016
-CHIM_VERSION=$CHIM_VERSION \
-  CHIM_CHECKSUM_LINUX_X86_64=$(grep linux-x64 "$RELEASE_DIR/SHASUMS256.txt") \
-  CHIM_CHECKSUM_LINUX_ARM64=$(grep linux-arm64 "$RELEASE_DIR/SHASUMS256.txt") \
-  CHIM_CHECKSUM_MACOS_X86_64=$(grep macos-x64 "$RELEASE_DIR/SHASUMS256.txt") \
-  CHIM_CHECKSUM_MACOS_ARM64=$(grep macos-arm64 "$RELEASE_DIR/SHASUMS256.txt") \
-  envsubst '$CHIM_VERSION,$CHIM_CHECKSUM_LINUX_X86_64,$CHIM_CHECKSUM_LINUX_ARM64,$CHIM_CHECKSUM_MACOS_X86_64,$CHIM_CHECKSUM_MACOS_ARM64' \
-  > chim.sh/static/chimstrap < chim/share/chimstrap.envsubst
-
-rm -rf chim.sh/static/rpm
-mv artifacts/rpm chim.sh/static/rpm
-
-rm -rf chim.sh/static/deb
-mv artifacts/deb chim.sh/static/deb
-
-pushd chim.sh
-git config user.name chim-bot
-git config user.email release@chim.sh
-CHIM_VERSION=$(cd ../chim && ./scripts/get-version)
-git add . && git commit -m "$CHIM_VERSION"
-popd
+mkdir -p dist/rpmrepo/packages
+cp -v packaging/rpm/chim.repo dist/rpmrepo
+cp -v ./*.rpm dist/rpmrepo/packages
+rpm --addsign dist/rpmrepo/packages/*.rpm
+createrepo dist/rpmrepo
+gpg --batch --yes --detach-sign --armor dist/rpmrepo/repodata/repomd.xml
