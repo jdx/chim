@@ -1,5 +1,7 @@
 # [chim](https://chim.sh/)
 
+[![chim](https://github.com/jdxcode/chim/actions/workflows/chim.yml/badge.svg?branch=main)](https://github.com/jdxcode/chim/actions/workflows/chim.yml)
+
 _Cross-platform binary shims with optional remote fetching._
 
 ## Quickstart (make an automatic fetching node.js wrapper)
