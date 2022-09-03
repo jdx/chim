@@ -184,10 +184,8 @@ jobs:
           set -x
           security find-identity -p basic -v
           #xcrun notarytool store-credentials
-          xcrun notarytool submit \
-            --keychain-profile app-signing \
-            --wait \
-            --path target/${{matrix.target}}/release/chim
+          xcrun notarytool submit target/${{matrix.target}}/release/chim \
+            --keychain-profile app-signing --wait
       - run: scripts/build-tarball ${{matrix.target}}
       - uses: actions/upload-artifact@v3
         with:
