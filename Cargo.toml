@@ -11,6 +11,7 @@ readme = "README.md"
 license = "MIT"
 keywords = ["shim"]
 categories = ["command-line-utilities", "development-tools::build-utils"]
+include = ["src/**/*", "LICENSE", "README.md"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
