@@ -1,6 +1,7 @@
 # [chim](https://chim.sh/)
 
 [![chim](https://github.com/jdxcode/chim/actions/workflows/chim.yml/badge.svg?branch=main)](https://github.com/jdxcode/chim/actions/workflows/chim.yml)
+[![codecov](https://codecov.io/gh/jdxcode/chim/branch/main/graph/badge.svg?token=CWOTCG9F5D)](https://codecov.io/gh/jdxcode/chim)
 
 _Cross-platform binary shims with optional remote fetching._
 
