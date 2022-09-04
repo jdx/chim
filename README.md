@@ -49,18 +49,3 @@ The tarball is fetched once from nodejs.org, extracted into a cache directory, t
 Commit a set of chims into a `/bin` directory in your project's repo. Other people can just add this directory to their
 `$PATH` and won't have to manually install each utility. Also run the chims in CI/CD so you have dev/prod parity with
 your tools!
-
-## Diagram
-
-Here's a flow chart of a [chim execution](https://chim.sh/docs/how-it-works):
-
-```mermaid
-graph TD;
-    init --> parse_chim[parse chim file: bin/node];
-    parse_chim -->|requests: https://nodejs.org/node-v20...tar.xz| already_dl{Already in chim cache?}
-    already_dl -->|yes| run_binary;
-    already_dl -->|no| fetch_archive[download tarball];
-    fetch_archive -->|download node-v20.macos.arm.tar.xz| validate_checksum[validate checksum];
-    validate_checksum -->|sha256sum node-v20.macos.arm.tar.xz| extract_archive[extract archive to cache directory];
-    extract_archive -->|tar -xzf node-v20.macos.arm.tar.xz| run_binary;
-```
