@@ -2,16 +2,22 @@ use crate::checksum::get_checksum;
 use crate::config::Config;
 use crate::fetchers;
 use crate::platform::split_platform_name;
-use color_eyre::eyre::{eyre, Result};
-use color_eyre::Report;
+use color_eyre::eyre::Result;
 use sha2::Sha256;
 use std::fs;
-use std::path::Path;
+use std::path::{Path, PathBuf};
 use tempfile::tempdir;
 use toml_edit::{value, Document};
 
-pub async fn run(args: Vec<String>) -> Result<()> {
-    let filename = Path::new(args.get(2).ok_or_else(usage)?);
+#[derive(Debug, clap::Args)]
+#[clap(about = "Regenerates all checksums in a chim")]
+pub struct Args {
+    #[clap(help = "The path to the chim file to update")]
+    chim_file: PathBuf,
+}
+
+pub async fn run(args: Args) -> Result<()> {
+    let filename = &args.chim_file;
     let mut doc = read(filename)?;
     trace!("{}", doc.to_string());
 
@@ -40,10 +46,6 @@ fn write(filename: &Path, doc: Document) -> Result<()> {
     fs::write(filename, doc.to_string())?;
 
     Ok(())
-}
-
-fn usage() -> Report {
-    eyre!("usage: chim checksum <filename>")
 }
 
 async fn fetch_checksum(filename: &Path, platform: &str) -> Result<String> {

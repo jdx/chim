@@ -16,6 +16,7 @@ categories = ["command-line-utilities", "development-tools::build-utils"]
 
 [dependencies]
 bzip2 = "0.4.3"
+clap = { version = "3.2.20", features = ["derive"] }
 color-eyre = "0.6.2"
 dirs = "4.0.0"
 env_logger = "0.9.0"
