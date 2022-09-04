@@ -54,3 +54,24 @@ impl<'a> Hooks<'a> {
         }
     }
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::env::consts::{ARCH, OS};
+    use std::path::Path;
+
+    #[test]
+    fn test_hooks() {
+        let config = Config::from_chim_file(Path::new("test/fixtures/hooks"), OS, ARCH).unwrap();
+
+        let hooks = Hooks::new(&config);
+        assert_eq!(hooks.pre_fetch().unwrap(), "_pre_fetch_\n");
+        assert_eq!(hooks.pre_extract().unwrap(), "_pre_extract_\n");
+        assert_eq!(hooks.pre_execute().unwrap(), "_pre_execute_\n");
+        assert_eq!(
+            hooks.post_execute().err().unwrap().to_string(),
+            "post_execute failed with exit status: 1"
+        );
+    }
+}
