@@ -44,5 +44,16 @@ class Chim < Formula
 
   test do
     system "#{bin}/chim --version"
+    (testpath/"test-chim").write <<EOF
+#!/usr/bin/env chim
+path = './test-chim-bin'
+EOF
+    (testpath/"test-chim-bin").write <<EOF
+#!/bin/sh
+echo "it works!"
+EOF
+    chmod 0755, testpath/"test-chim-bin"
+
+    assert_match "it works!", shell_output("#{bin}/chim ./test-chim")
   end
 end
