@@ -1,0 +1,9 @@
+#!/usr/bin/env chim
+
+[darwin-x64]
+url = "https://chim.s3.amazonaws.com/node-v18.8.0-darwin-x64.xz"
+checksum = "548db492cd6cbc81ac5996aff9e2cee607958268f2f6fdf0f1a83c3358c7010d"
+
+[linux-x64]
+url = "https://chim.s3.amazonaws.com/node-v18.8.0-linux-x64.xz"
+checksum = "44fd49378710695cf2fb9d4711a159e918394fb69ade55715e95840dbef702b2"

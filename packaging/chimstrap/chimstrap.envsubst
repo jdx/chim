@@ -1,0 +1,147 @@
+#!/bin/sh
+set -eu
+
+#region logging setup
+if [ "${CHIMSTRAP_TRACE-}" = "1" ] || [ "${CHIMSTRAP_TRACE-}" = "true" ]; then
+	set -x
+fi
+if [ "${CHIM_DEBUG-}" = "true" ] || [ "${CHIM_DEBUG-}" = "1" ]; then
+	debug() {
+		echo "$@" >&2
+	}
+else
+	debug() {
+		:
+	}
+fi
+
+if [ "${CHIM_QUIET-}" = "1" ] || [ "${CHIMSTRAP_QUIET-}" = "1" ] ||
+	[ "${CHIM_QUIET-}" = "true" ] || [ "${CHIMSTRAP_QUIET-}" = "true" ]; then
+	info() {
+		echo "$@" >&2
+	}
+else
+	info() {
+		:
+	}
+fi
+
+error() {
+	echo "$@" >&2
+	exit 1
+}
+#endregion
+
+#region environment setup
+get_os() {
+	os="$(uname -s)"
+	if [ "$os" = Darwin ]; then
+		echo "macos"
+	elif [ "$os" = Linux ]; then
+		echo "linux"
+	else
+		error "unsupported OS: $os"
+	fi
+}
+
+get_arch() {
+	arch="$(uname -m)"
+	if [ "$arch" = x86_64 ]; then
+		echo "x64"
+	elif [ "$arch" = aarch64 ] || [ "$arch" = arm64 ]; then
+		echo "arm64"
+	else
+		error "unsupported architecture: $arch"
+	fi
+}
+
+get_cache_dir() {
+	# faster than calling `uname -s`
+	if [ -d "${HOME}/Library/Caches" ] && [ -x /usr/bin/xcode-select ]; then
+		echo "${HOME}/Library/Caches/chim"
+	else
+		echo "${HOME}/.cache/chim"
+	fi
+}
+
+get_checksum() {
+	os="$(get_os)"
+	arch="$(get_arch)"
+
+	checksum_linux_x86_64="$CHIM_CHECKSUM_LINUX_X86_64"
+	checksum_linux_arm64="$CHIM_CHECKSUM_LINUX_ARM64"
+	checksum_macos_x86_64="$CHIM_CHECKSUM_MACOS_X86_64"
+	checksum_macos_arm64="$CHIM_CHECKSUM_MACOS_ARM64"
+
+	if [ "$os" = "linux" ] && [ "$arch" = "x64" ]; then
+		echo "$checksum_linux_x86_64"
+	elif [ "$os" = "linux" ] && [ "$arch" = "arm64" ]; then
+		echo "$checksum_linux_arm64"
+	elif [ "$os" = "macos" ] && [ "$arch" = "x64" ]; then
+		echo "$checksum_macos_x86_64"
+	elif [ "$os" = "macos" ] && [ "$arch" = "arm64" ]; then
+		echo "$checksum_macos_arm64"
+	else
+		warn "no checksum for $os-$arch"
+	fi
+}
+
+#endregion
+
+download_file() {
+	url="$1"
+	filename="$(basename "$url")"
+	cache_dir="$(mktemp -d)"
+	file="$cache_dir/$filename"
+
+	info "chimstrap: installing chim..."
+
+	if command -v curl >/dev/null 2>&1; then
+		debug ">" curl -fLlSso "$file" "$url"
+		curl -fLlSso "$file" "$url"
+	else
+		if command -v wget >/dev/null 2>&1; then
+			debug ">" wget -qO "$file" "$url"
+			stderr=$(mktemp)
+			wget -O "$file" "$url" >"$stderr" 2>&1 || error "wget failed: $(cat "$stderr")"
+		else
+			error "chimstrap requires curl or wget but neither is installed. Aborting."
+		fi
+	fi
+
+	echo "$file"
+}
+
+install_chim() {
+	# download the tarball
+	version="$CHIM_VERSION"
+	os="$(get_os)"
+	arch="$(get_arch)"
+	cache_dir="$(get_cache_dir)"
+	tarball_url="https://chim.sh/releases/${version}/chim-${version}-${os}-${arch}.tar.xz"
+
+	cache_file=$(download_file "${CHIMSTRAP_URL:-$tarball_url}")
+	debug "chimstrap: cache_file is $cache_file"
+
+	if [ -z "${CHIMSTRAP_URL:-}" ]; then
+		debug "validating checksum"
+		cd "$(dirname "$cache_file")" && get_checksum | sha256sum -c >/dev/null
+	else
+		debug "not validating checksum since CHIMSTRAP_URL was defined"
+	fi
+
+	# extract tarball
+	mkdir -p "$cache_dir"
+	tar -xJf "$cache_file" -C "$cache_dir/.."
+	rm -f "$cache_file"
+}
+
+__chim_path="$(get_cache_dir)/bin/chim"
+
+if [ ! -x "$__chim_path" ]; then
+	debug "chimstrap: chim not found in $__chim_path"
+	install_chim
+fi
+
+debug "chimstrap: running chim with args:" "$@"
+exec "$__chim_path" "$@"

@@ -1,0 +1,352 @@
+name: chim
+
+on:
+  push:
+    branches: [ "main" ]
+    tags: [ "v*" ]
+  pull_request:
+    branches: [ "main" ]
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  unit:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v3
+      - uses: Swatinem/rust-cache@v2
+      - uses: actions-rs/cargo@v1
+        with: {command: test}
+
+  lint:
+    runs-on: ubuntu-22.04
+    steps:
+      - uses: actions/checkout@v1
+      - uses: Swatinem/rust-cache@v2
+      - run: rustup component add clippy
+      - uses: actions-rs/clippy-check@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          args: --all-features
+      - uses: actions-rs/cargo@v1
+        with:
+          command: fmt
+          args: --all -- --check
+      - uses: actions-rs/audit-check@v1
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+
+  e2e-linux:
+    runs-on: ubuntu-22.04
+    needs: [build]
+    env:
+      AWS_ACCESS_KEY_ID: '${{ secrets.AWS_ACCESS_KEY_ID }}'
+      AWS_SECRET_ACCESS_KEY: '${{ secrets.AWS_SECRET_ACCESS_KEY }}'
+      AWS_DEFAULT_REGION: us-east-1
+    steps:
+      - uses: actions/checkout@v3
+      - uses: 'google-github-actions/auth@v0'
+        if: github.event_name != 'pull_request'
+        with:
+          credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+          service_account: 'chim-test@chim-361015.iam.gserviceaccount.com'
+        continue-on-error: true
+      - uses: 'google-github-actions/setup-gcloud@v0'
+      - uses: actions/download-artifact@v3
+        with:
+          name: tarball-x86_64-unknown-linux-gnu
+          path: dist
+      - run: tar -C "$HOME" -xvJf dist/chim-$(./scripts/get-version.sh)-linux-x64.tar.xz
+      - run: echo "$HOME/chim/bin" >> $GITHUB_PATH
+      - run: chim -v
+      - name: shellcheck
+        if: success() || failure()
+        run: |
+          ./example/shellcheck                     \
+            packaging/chimstrap/chimstrap.envsubst \
+            scripts/*.sh
+      - name: shfmt
+        if: success() || failure()
+        run: |
+          ./example/shfmt                          \
+            packaging/chimstrap/chimstrap.envsubst \
+            scripts/*.sh
+      - run: ./example/multiarch abc123
+        if: success() || failure()
+      - run: ./example/node -v
+        if: success() || failure()
+      - run: ./example/gz -v
+        if: success() || failure()
+      - run: ./example/xz -v
+        if: success() || failure()
+      - run: ./example/abs -v
+        if: success() || failure()
+      - run: ./example/s3 -v
+        if: github.event_name != 'pull_request'
+      - run: ./example/gcs -v
+        if: github.event_name != 'pull_request'
+
+  e2e-macos:
+    runs-on: macos-12
+    needs: [build-macos]
+    env:
+      AWS_ACCESS_KEY_ID: '${{ secrets.AWS_ACCESS_KEY_ID }}'
+      AWS_SECRET_ACCESS_KEY: '${{ secrets.AWS_SECRET_ACCESS_KEY }}'
+      AWS_DEFAULT_REGION: us-east-1
+    steps:
+      - uses: actions/checkout@v3
+      - uses: 'google-github-actions/auth@v0'
+        if: github.event_name != 'pull_request'
+        continue-on-error: true
+        with:
+          credentials_json: '${{ secrets.GCP_CREDENTIALS }}'
+          service_account: 'chim-test@chim-361015.iam.gserviceaccount.com'
+      - uses: 'google-github-actions/setup-gcloud@v0'
+      - uses: actions/download-artifact@v3
+        with:
+          name: tarball-x86_64-apple-darwin
+          path: dist
+      - run: tar -C "$HOME" -xvJf dist/chim-$(./scripts/get-version.sh)-macos-x64.tar.xz
+      - run: echo "$HOME/chim/bin" >> $GITHUB_PATH
+      - run: chim -v
+      - name: shellcheck
+        run: |
+          ./example/shellcheck                     \
+            packaging/chimstrap/chimstrap.envsubst \
+            scripts/*.sh
+        if: success() || failure()
+      - run: ./example/multiarch abc123
+        if: success() || failure()
+      - run: ./example/node -v
+        if: success() || failure()
+      - run: ./example/gz -v
+        if: success() || failure()
+      - run: ./example/xz -v
+        if: success() || failure()
+      - run: ./example/abs -v
+        if: success() || failure()
+      - run: ./example/s3 -v
+        if: github.event_name != 'pull_request'
+      - run: ./example/gcs -v
+        if: github.event_name != 'pull_request'
+
+  e2e-win:
+    runs-on: windows-latest
+    needs: [build-x86_64-pc-windows-gnu]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+        with:
+          name: setup-x86_64-pc-windows-gnu
+          path: dist
+      - run: dist\chim-setup.exe /SILENT
+      - run: echo "C:\Program Files (x86)\chim\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8
+      - run: chim -v
+      - run: .\example\node -v
+
+  e2e-chimstrap:
+    runs-on: ubuntu-22.04
+    needs: [ build ]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions/download-artifact@v3
+        with:
+          name: tarball-x86_64-unknown-linux-gnu
+          path: dist
+      - name: Build and run chimstrap
+        run: |
+          set -x
+          export CHIM_VERSION=$(./scripts/get-version.sh)
+          export CHIMSTRAP_URL="http://localhost:3000/dist/chim-$CHIM_VERSION-linux-x64.tar.xz"
+          python3 -m http.server 3000 &
+          sleep 1
+          ./packaging/chimstrap/chimstrap.envsubst ./example/node -v
+
+  build:
+    name: build-${{matrix.target}}
+    runs-on: ubuntu-22.04
+    needs: [unit, lint]
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - aarch64-unknown-linux-gnu
+          - x86_64-unknown-linux-gnu
+    steps:
+      - uses: actions/checkout@v3
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: ${{matrix.target}}
+          override: true
+      - uses: Swatinem/rust-cache@v2
+        with: {key: "${{matrix.target}}"}
+      - uses: actions-rs/cargo@v1
+        with:
+          use-cross: true
+          command: build
+          args: --release --target ${{matrix.target}}
+      - run: scripts/build-tarball.sh ${{matrix.target}}
+      - uses: actions/upload-artifact@v3
+        with:
+          name: tarball-${{matrix.target}}
+          path: |
+            dist/chim-*.tar.xz
+            dist/chim-*.tar.gz
+          if-no-files-found: error
+
+  build-macos:
+    name: build-${{matrix.target}}
+    runs-on: macos-12
+    needs: [unit, lint]
+    strategy:
+      fail-fast: false
+      matrix:
+        target:
+          - x86_64-apple-darwin
+          - aarch64-apple-darwin
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions-rs/toolchain@v1
+        with:
+          toolchain: stable
+          target: ${{matrix.target}}
+          override: true
+      - uses: Swatinem/rust-cache@v2
+        with: {key: "${{matrix.target}}"}
+      - run: cargo build --release --target ${{matrix.target}}
+      - run: scripts/build-tarball.sh ${{matrix.target}}
+      - uses: actions/upload-artifact@v3
+        with:
+          name: tarball-${{matrix.target}}
+          path: |
+            dist/chim-*.tar.xz
+            dist/chim-*.tar.gz
+          if-no-files-found: error
+
+  build-x86_64-pc-windows-gnu:
+    runs-on: windows-2022
+    needs: [unit, lint]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: Swatinem/rust-cache@v2
+      - uses: actions-rs/cargo@v1
+        with:
+          command: build
+          args: --no-default-features --release
+      - run: Invoke-Expression "cargo install cargo-get" -ErrorAction SilentlyContinue
+      - run: scripts/build-windows.ps1
+      - run: iscc packaging\win\setup.iss
+      - uses: actions/upload-artifact@v3
+        with:
+          name: tarball-x86_64-pc-windows-gnu
+          path: dist/chim-*.zip
+          if-no-files-found: error
+      - uses: actions/upload-artifact@v3
+        with:
+          name: setup-x86_64-pc-windows-gnu
+          path: dist/chim-setup.exe
+          if-no-files-found: error
+
+  rpm:
+    runs-on: ubuntu-22.04
+    needs: [build]
+    container: jdxcode/chim:rpm
+    if: github.event_name != 'pull_request'
+    steps:
+      - uses: actions/checkout@v3
+      - uses: crazy-max/ghaction-import-gpg@v5
+        with:
+          gpg_private_key: ${{ secrets.GPG_KEY }}
+      - uses: actions/download-artifact@v3
+        with:
+          name: tarball-x86_64-unknown-linux-gnu
+          path: dist
+      - uses: actions/download-artifact@v3
+        with:
+          name: tarball-aarch64-unknown-linux-gnu
+          path: dist
+      - run: scripts/build-rpm.sh
+      - uses: actions/upload-artifact@v3
+        with:
+          name: rpm
+          path: dist/rpmrepo
+          if-no-files-found: error
+
+  deb:
+    runs-on: ubuntu-22.04
+    container: jdxcode/chim:deb
+    if: github.event_name != 'pull_request'
+    needs: [build]
+    steps:
+      - uses: actions/checkout@v3
+      - uses: crazy-max/ghaction-import-gpg@v5
+        with:
+          gpg_private_key: ${{ secrets.GPG_KEY }}
+      - uses: actions/download-artifact@v3
+        with:
+          name: tarball-x86_64-unknown-linux-gnu
+          path: dist
+      - uses: actions/download-artifact@v3
+        with:
+          name: tarball-aarch64-unknown-linux-gnu
+          path: dist
+      - run: scripts/build-deb.sh
+      - uses: actions/upload-artifact@v3
+        with:
+          name: deb
+          path: dist/deb
+          if-no-files-found: error
+
+  release:
+    runs-on: ubuntu-22.04
+    if: startsWith(github.event.ref, 'refs/tags/v')
+    needs:
+      - e2e-linux
+      - e2e-win
+      - e2e-macos
+      - e2e-chimstrap
+      - rpm
+      - deb
+    steps:
+      - uses: actions/checkout@v3
+        with:
+          path: chim
+      - uses: actions/checkout@v3
+        with:
+          repository: jdxcode/chim.sh
+          path: chim.sh
+          token: ${{ secrets.CHIM_GITHUB_BOT_TOKEN }}
+      - uses: actions/checkout@v3
+        with:
+          repository: jdxcode/homebrew-tap
+          path: homebrew-tap
+          token: ${{ secrets.CHIM_GITHUB_BOT_TOKEN }}
+      - uses: crazy-max/ghaction-import-gpg@v5
+        with:
+          gpg_private_key: ${{ secrets.GPG_KEY }}
+          git_user_signingkey: true
+          git_commit_gpgsign: true
+          workdir: chim.sh
+      - uses: actions/download-artifact@v3
+        with: {path: artifacts}
+      - run: chim/scripts/release.sh
+      - name: chim.sh push
+        run: git push
+        working-directory: chim.sh
+      - name: homebrew-tap push
+        run: git push
+        working-directory: homebrew-tap
+
+      - name: GitHub Release Assets
+        uses: softprops/action-gh-release@v1
+        if: startsWith(github.event.ref, 'refs/tags/v')
+        with:
+          fail_on_unmatched_files: true
+          draft: true
+          files: chim.sh/static/releases/${{github.ref_name}}/*
+          generate_release_notes: true

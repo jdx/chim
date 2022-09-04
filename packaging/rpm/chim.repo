@@ -1,0 +1,6 @@
+[chim-repo]
+name=Chim Repo
+baseurl=https://chim.sh/rpm
+enabled=1
+gpgcheck=1
+gpgkey=http://chim.sh/gpg-key.pub

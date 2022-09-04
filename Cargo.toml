@@ -1,0 +1,63 @@
+[package]
+name = "chim"
+version = "1.0.0"
+edition = "2021"
+description = "Cross-platform binary shims with optional remote fetching."
+authors = ["Jeff Dickey (@jdxcode)"]
+homepage = "https://chim.sh"
+documentation = "https://chim.sh"
+repository = "https://github.com/jdxcode/chim"
+readme = "README.md"
+license = "MIT"
+keywords = ["shim"]
+categories = ["command-line-utilities", "development-tools::build-utils"]
+publish = false
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[dependencies]
+bzip2 = "0.4.3"
+color-eyre = "0.6.2"
+dirs = "4.0.0"
+env_logger = "0.9.0"
+flate2 = "1.0.24"
+hex = "0.4.3"
+itertools = "0.10.3"
+log = "0.4.17"
+reqwest = {version = "0.11.11", features = ["rustls-tls"], default-features = false}
+serde = "1.0.143"
+serde_derive = "1.0.143"
+sha2 = "0.10.4"
+tar = "0.4.38"
+tempfile = "3.3.0"
+tokio = { version = "1.20.1", features = ["full"] }
+toml = "0.5.9"
+toml_edit = "0.14.4"
+xz = "0.1.0"
+zip = {version = "0.6.2", default-features = false, features = ["deflate"]}
+
+[target.'cfg(unix)'.dependencies]
+exec = "0.3.1"
+
+[dev-dependencies]
+test-case = "2.2.1"
+rand = "0.8.5"
+rusty-hook = "^0.11.0"
+
+[profile.release]
+opt-level = "z" # optimize for size
+lto = true
+debug = false
+debug-assertions = false
+panic = "abort"
+strip = "symbols"
+
+[package.metadata.release]
+allow-branch = ["master"]
+sign-tag = true
+sign-commit = true
+pre-release-replacements = [
+    {file="README.md", search="^chim [0-9]+.[0-9]+.[0-9]+(-alpha.[0-9]+)?$", replace="chim {{version}}"},
+    {file="packaging/rpm/chim.spec", search="^Version: [0-9]+.[0-9]+.[0-9]+(-alpha.[0-9]+)?$", replace="Version: {{version}}"},
+    {file="packaging/win/setup.iss", search="^AppVersion=[0-9]+.[0-9]+.[0-9]+(-alpha.[0-9]+)?$", replace="AppVersion={{version}}"},
+]

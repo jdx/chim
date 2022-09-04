@@ -1,0 +1,6 @@
+#!/usr/bin/env chim
+
+[darwin-arm64]
+url = "scp://cloud/chim/node-v18.8.0-darwin-x64.tar.gz"
+checksum = "57457aeb1b3bfa2295235a134ebcdb58a72144b88049b72d9f7739f6591f850f"
+path = "node-v18.8.0-darwin-x64/bin/node"
