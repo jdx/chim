@@ -11,7 +11,7 @@ Install chim: (see docs for [alternate install methods](https://chim.sh/docs/ins
 ```
 $ cargo install chim
 $ chim --version
-chim 1.0.0
+chim 1.0.1
 ```
 
 Create a chim in `./bin/node`:
