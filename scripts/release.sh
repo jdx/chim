@@ -45,7 +45,7 @@ gpg --clearsign -u 7E07A8D14B7A5595 <SHASUMS256.txt >SHASUMS256.asc
 popd
 
 export CHIM_VERSION RELEASE_DIR
-./chim/scripts/render-chimstrap >chim.sh/static/chimstrap
+./chim/scripts/render-chimstrap.sh >chim.sh/static/chimstrap
 
 rm -rf chim.sh/static/rpm
 mv artifacts/rpm chim.sh/static/rpm
@@ -57,7 +57,7 @@ pushd chim.sh
 git add . && git commit -m "$CHIM_VERSION"
 popd
 
-./chim/scripts/render-homebrew >homebrew-tap/chim.rb
+./chim/scripts/render-homebrew.sh >homebrew-tap/chim.rb
 pushd homebrew-tap
 git add . && git commit -m "$CHIM_VERSION"
 popd
