@@ -84,7 +84,7 @@ impl Config {
             .ok_or_else(|| show_no_url_or_path_error(&fetcher, os, arch))?;
 
         let cache_path = get_cache_path(&url)?;
-        let bin_path = get_bin_path(&fetcher, &chim_dir, &cache_path, &path);
+        let bin_path = get_bin_path(&fetcher, chim_dir, &cache_path, &path);
 
         Ok(Config {
             chim_path: chim_path.to_path_buf(),
