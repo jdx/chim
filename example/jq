@@ -15,4 +15,4 @@ checksum = "sha256:af986793a515d500ab2d35f8d2aecd656e764504b789b66d7e1a0b727a124
 
 [linux-aarch64]
 url = "https://chim.s3.amazonaws.com/jq-linux-aarch64"
-checksum = "4b48bd867dca66c2db58e0d3d50480363d3402b51783d4bef3ebfaa28ffa1c0a"
+checksum = "sha256:a21c3d8616a9d60c2f1b20d69c5572f3b1f7301e4b5fbbc5e7ef68aabbd55d0a"
