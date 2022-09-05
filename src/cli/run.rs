@@ -28,6 +28,7 @@ pub async fn run(args: Vec<String>) -> Result<()> {
 }
 
 #[cfg(test)]
+#[cfg(feature = "test-e2e")]
 mod tests {
     use super::*;
     use std::fs::File;
