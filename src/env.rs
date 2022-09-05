@@ -17,6 +17,7 @@ pub fn var_is_false(key: &str) -> bool {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use pretty_assertions::assert_eq;
     use std::env;
     use test_case::test_case;
 

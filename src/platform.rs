@@ -27,6 +27,7 @@ fn normalize_arch(arch: &str) -> Cow<'static, str> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use pretty_assertions::assert_eq;
     use test_case::test_case;
 
     #[test_case("darwin-x64", "macos-x86_64")]
