@@ -15,20 +15,11 @@ env:
 jobs:
   unit:
     runs-on: ubuntu-22.04
-    container:
-      image: xd009642/tarpaulin:develop-nightly
-      options: --security-opt seccomp=unconfined
     steps:
       - uses: actions/checkout@v3
       - uses: Swatinem/rust-cache@v2
       - uses: actions-rs/cargo@v1
         with: {command: test}
-      - name: Generate code coverage
-        run: cargo +nightly tarpaulin --verbose --all-features --workspace --timeout 120 --out Xml
-      - name: Upload to codecov.io
-        uses: codecov/codecov-action@v3
-        with:
-          fail_ci_if_error: true
 
   lint:
     runs-on: ubuntu-22.04
@@ -174,6 +165,24 @@ jobs:
           python3 -m http.server 3000 &
           sleep 1
           ./packaging/chimstrap/chimstrap.envsubst ./example/node -v
+
+  coverage:
+    runs-on: ubuntu-22.04
+    needs: [unit, lint]
+    container:
+      image: xd009642/tarpaulin:develop-nightly
+      options: --security-opt seccomp=unconfined
+    steps:
+      - uses: actions/checkout@v3
+      - uses: Swatinem/rust-cache@v2
+      - uses: actions-rs/cargo@v1
+        with: {command: test}
+      - name: Generate code coverage
+        run: cargo +nightly tarpaulin --verbose --all-features --workspace --timeout 120 --out Xml
+      - name: Upload to codecov.io
+        uses: codecov/codecov-action@v3
+        with:
+          fail_ci_if_error: true
 
   build:
     name: build-${{matrix.target}}
