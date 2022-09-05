@@ -14,6 +14,11 @@ url = 'https://nodejs.org/dist/v18.7.0/node-v18.7.0-linux-x64.tar.xz'
 path = 'node-v18.7.0-linux-x64/bin/node'
 checksum = "sha256:8bc6a1b9deaed2586d726fc62d4bee9c1bfc5a30b96c1c4cff7edd15225a11a2"
 
+[linux-arm64]
+url = 'https://nodejs.org/dist/v18.7.0/node-v18.7.0-linux-arm64.tar.xz'
+path = 'node-v18.7.0-linux-arm64/bin/node'
+checksum = "sha256:c3ac4905ec3993d00a45d2c7af8417e79e907be51b8ffecb54c5b9ab8ef0bc9f"
+
 [win-x64]
 url = 'https://nodejs.org/dist/v18.7.0/node-v18.7.0-win-x64.zip'
 path = 'node-v18.7.0-win-x64\node.exe'
