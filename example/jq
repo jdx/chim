@@ -1,5 +1,7 @@
 #!/usr/bin/env chim
 
+execvp = false
+
 [macos-x64]
 url = "https://github.com/stedolan/jq/releases/download/jq-1.6/jq-osx-amd64"
 checksum = "sha256:5c0a0a3ea600f302ee458b30317425dd9632d1ad8882259fcaf4e9b868b2b1ef"
