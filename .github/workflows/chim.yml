@@ -18,8 +18,13 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - uses: Swatinem/rust-cache@v2
-      - uses: actions-rs/cargo@v1
-        with: { command: test }
+      - name: Install latest nextest release
+        uses: taiki-e/install-action@nextest
+      - name: Test with latest nextest release
+        uses: actions-rs/cargo@v1
+        with:
+          command: nextest
+          args: run --all-features --profile ci
 
   lint:
     runs-on: ubuntu-22.04
