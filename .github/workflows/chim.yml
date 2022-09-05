@@ -192,7 +192,7 @@ jobs:
       - name: Generate code coverage
         run: |
           cargo +nightly tarpaulin \
-            --verbose --all-features --workspace \
+            --all-features --workspace \
             --timeout 120 --out Xml --ignore-tests \
             --exclude-files 'src/fetchers/*'
       - name: Upload to codecov.io

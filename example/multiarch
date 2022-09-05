@@ -1,6 +1,4 @@
 #!/usr/bin/env chim
-[macos-x64]
-path = "./.multiarch/macos"
 [macos-arm64]
 path = "./.multiarch/macos"
 [macos-x64]
