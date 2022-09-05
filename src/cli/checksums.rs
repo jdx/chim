@@ -61,3 +61,48 @@ async fn fetch_checksum(filename: &Path, platform: &str) -> Result<String> {
 
     Ok(checksum)
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+    use std::fs::File;
+    use std::io::Write;
+    use std::path::PathBuf;
+    use tempfile::{tempdir, TempDir};
+
+    #[tokio::test]
+    async fn test_checksums() {
+        let dir = tempdir().unwrap();
+        let chim_path = create_chim(&dir);
+        run(Args {
+            chim_file: chim_path.clone(),
+        })
+        .await
+        .unwrap();
+
+        assert_eq!(
+            fs::read_to_string(&chim_path).unwrap(),
+            r#"#!/usr/bin/env chim
+[macos-arm64]
+url = 'https://nodejs.org/dist/v18.7.0/node-v18.7.0-darwin-arm64.tar.gz'
+path = 'node-v18.7.0-darwin-arm64/bin/node'
+checksum = "sha256:ea24b35067bd0dc40ea8fda1087acc87672cbcbba881f7477dbd432e3c03343d"
+"#
+        );
+    }
+
+    fn create_chim(dir: &TempDir) -> PathBuf {
+        let filename = dir.path().join("node");
+        let mut file = File::create(&filename).unwrap();
+        file.write_all(
+            br#"#!/usr/bin/env chim
+[macos-arm64]
+url = 'https://nodejs.org/dist/v18.7.0/node-v18.7.0-darwin-arm64.tar.gz'
+path = 'node-v18.7.0-darwin-arm64/bin/node'
+"#,
+        )
+        .unwrap();
+
+        filename
+    }
+}
