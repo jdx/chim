@@ -43,6 +43,17 @@ mod tests {
             .into_iter()
             .map(String::from)
             .collect())
+            .await
+            .unwrap();
+    }
+
+    #[tokio::test]
+    async fn test_jq() {
+        let chim_path = Path::new("example/jq");
+        run(vec!["node", chim_path.to_str().unwrap(), "-V"]
+            .into_iter()
+            .map(String::from)
+            .collect())
         .await
         .unwrap();
     }
