@@ -22,6 +22,9 @@ pub async fn run(args: Args) -> Result<()> {
     trace!("{}", doc.to_string());
 
     for (platform, values) in doc.iter_mut() {
+        if !values.is_table() {
+            continue;
+        }
         values["checksum"] = value(fetch_checksum(filename, &platform).await?);
     }
 
@@ -84,6 +87,7 @@ mod tests {
         assert_eq!(
             fs::read_to_string(&chim_path).unwrap(),
             r#"#!/usr/bin/env chim
+execvp = false
 [macos-arm64]
 url = 'https://nodejs.org/dist/v18.7.0/node-v18.7.0-darwin-arm64.tar.gz'
 path = 'node-v18.7.0-darwin-arm64/bin/node'
@@ -102,6 +106,7 @@ checksum = "sha256:9c0abfe32291dd5bed717463cb3590004289f03ab66011e383daa0fcec674
         let mut file = File::create(&filename).unwrap();
         file.write_all(
             br#"#!/usr/bin/env chim
+execvp = false
 [macos-arm64]
 url = 'https://nodejs.org/dist/v18.7.0/node-v18.7.0-darwin-arm64.tar.gz'
 path = 'node-v18.7.0-darwin-arm64/bin/node'
