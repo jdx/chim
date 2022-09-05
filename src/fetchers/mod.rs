@@ -20,7 +20,7 @@ pub fn new(config: &Config) -> Fetcher {
 impl<'a> Fetcher<'a> {
     pub async fn fetch(&self, url: &str, tmpfile: &Path) -> Result<()> {
         match self.config.fetcher {
-            config::Fetcher::Http => http::fetch(url, tmpfile).await,
+            config::Fetcher::Http => http::fetch(self.config, url, tmpfile).await,
             config::Fetcher::S3 => s3::fetch(self.config, url, tmpfile),
             config::Fetcher::Gcs => gcs::fetch(url, tmpfile),
             config::Fetcher::Abs => abs::fetch(url, tmpfile),
