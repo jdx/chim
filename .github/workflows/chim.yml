@@ -84,6 +84,8 @@ jobs:
         if: success() || failure()
       - run: ./example/abs -v
         if: success() || failure()
+      - run: ./example/jq -V
+        if: success() || failure()
       - run: ./example/s3 -v
         if: github.event_name != 'pull_request'
       - run: ./example/gcs -v
@@ -127,6 +129,8 @@ jobs:
       - run: ./example/xz -v
         if: success() || failure()
       - run: ./example/abs -v
+        if: success() || failure()
+      - run: ./example/jq -V
         if: success() || failure()
       - run: ./example/s3 -v
         if: github.event_name != 'pull_request'
