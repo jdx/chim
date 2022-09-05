@@ -59,6 +59,7 @@ where
     }
 
     #[cfg(unix)]
+    #[cfg(not(tarpaulin_include))]
     fn do_execvp(&self) -> Result<()> {
         debug!(
             "execvp: {} {}",

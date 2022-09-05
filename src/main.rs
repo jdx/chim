@@ -18,6 +18,7 @@ mod platform;
 extern crate log;
 
 #[tokio::main]
+#[cfg(not(tarpaulin_include))]
 pub async fn main() -> Result<()> {
     logger::init();
     color_eyre::install()?;

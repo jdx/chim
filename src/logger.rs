@@ -10,6 +10,7 @@ pub fn init() {
     }
     let env = Env::default().filter("CHIM_LOG_LEVEL");
 
+    #[cfg(not(tarpaulin_include))]
     Builder::from_env(env)
         .format(|buf, record| {
             let style = buf.default_level_style(record.level());
