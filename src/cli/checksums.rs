@@ -21,7 +21,6 @@ pub async fn run(args: Args) -> Result<()> {
     let mut doc = read(filename)?;
     trace!("{}", doc.to_string());
 
-    doc["macos-arm64"]["checksum"] = value("1234");
     for (platform, values) in doc.iter_mut() {
         values["checksum"] = value(fetch_checksum(filename, &platform).await?);
     }
