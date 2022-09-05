@@ -42,6 +42,7 @@ pub struct Config {
     pub checksum: Option<String>,
     pub execvp: bool,
     pub paranoid: bool,
+    pub quiet: bool,
 
     pub bin_path: PathBuf,
     pub cache_path: PathBuf,
@@ -97,6 +98,7 @@ impl Config {
             cache_path,
             execvp: get_execvp(&chim_file, platform),
             paranoid: get_paranoid(),
+            quiet: get_quiet(&chim_file),
 
             // s3
             aws_profile: get_aws_profile(&chim_file, platform),
@@ -312,6 +314,10 @@ fn get_filename_from_url(url: &str) -> Result<String> {
         .and_then(|name| if name.is_empty() { None } else { Some(name) })
         .unwrap_or("download.file")
         .to_string())
+}
+
+fn get_quiet(chim_file: &ChimFile) -> bool {
+    env::var_is_true("CHIM_QUIET") || (chim_file.quiet && !env::var_is_false("CHIM_QUIET"))
 }
 
 #[cfg(test)]
