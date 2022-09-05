@@ -118,7 +118,7 @@ install_chim() {
 	os="$(get_os)"
 	arch="$(get_arch)"
 	cache_dir="$(get_cache_dir)"
-	tarball_url="https://chim.sh/releases/${version}/chim-${version}-${os}-${arch}.tar.xz"
+	tarball_url="https://chim.sh/releases/${version}/chim-${version}-${os}-${arch}.tar.gz"
 
 	cache_file=$(download_file "${CHIMSTRAP_URL:-$tarball_url}")
 	debug "chimstrap: cache_file is $cache_file"
@@ -132,7 +132,7 @@ install_chim() {
 
 	# extract tarball
 	mkdir -p "$cache_dir"
-	tar -xJf "$cache_file" -C "$cache_dir/.."
+	tar -xzf "$cache_file" -C "$cache_dir/.."
 	rm -f "$cache_file"
 }
 
