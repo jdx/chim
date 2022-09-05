@@ -66,6 +66,7 @@ async fn fetch_checksum(filename: &Path, platform: &str) -> Result<String> {
 }
 
 #[cfg(test)]
+#[cfg(feature = "test-e2e")]
 mod tests {
     use super::*;
     use pretty_assertions::assert_eq;
