@@ -1,6 +1,5 @@
 mod checksums;
 mod run;
-mod usage;
 mod version;
 
 use clap::{AppSettings, Parser, Subcommand};
@@ -31,9 +30,8 @@ pub async fn parse(args: Vec<String>) -> Result<()> {
         None => {}
     };
 
-    match Cli::parse_from(args).command {
-        Some(Commands::Checksums(args)) => checksums::run(args).await,
-        None => usage::run(),
+    match Cli::parse_from(args).command.unwrap() {
+        Commands::Checksums(args) => checksums::run(args).await,
     }
 }
 
