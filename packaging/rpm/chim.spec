@@ -1,6 +1,6 @@
 Summary: Cross-platform binary shims with optional remote fetching
 Name: chim
-Version: 1.1.0
+Version: 1.1.1
 Release: 1
 URL: https://chim.sh/
 Group: System

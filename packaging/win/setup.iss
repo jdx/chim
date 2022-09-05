@@ -4,7 +4,7 @@
 
 [Setup]
 AppName=chim
-AppVersion=1.1.0
+AppVersion=1.1.1
 AppPublisher=Jeff Dickey
 AppSupportURL=https://chim.sh/
 DefaultDirName={autopf}\chim
