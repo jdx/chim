@@ -175,7 +175,7 @@ jobs:
         run: |
           set -x
           export CHIM_VERSION=$(./scripts/get-version.sh)
-          export CHIMSTRAP_URL="http://localhost:3000/dist/chim-$CHIM_VERSION-linux-x64.tar.xz"
+          export CHIMSTRAP_URL="http://localhost:3000/dist/chim-$CHIM_VERSION-linux-x64.tar.gz"
           python3 -m http.server 3000 &
           sleep 1
           ./packaging/chimstrap/chimstrap.envsubst ./example/node -v
