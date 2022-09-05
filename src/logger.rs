@@ -23,3 +23,13 @@ pub fn init() {
         })
         .init();
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn test_init() {
+        init();
+    }
+}
