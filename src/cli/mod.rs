@@ -45,3 +45,15 @@ fn arg_is_path(arg: &str) -> bool {
         || arg.starts_with('~')
         || Path::new(arg).is_absolute()
 }
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[tokio::test]
+    async fn test_version() {
+        parse(vec!["chim".to_string(), "-v".to_string()])
+            .await
+            .unwrap();
+    }
+}
