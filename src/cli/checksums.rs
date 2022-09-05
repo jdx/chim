@@ -87,6 +87,11 @@ mod tests {
 url = 'https://nodejs.org/dist/v18.7.0/node-v18.7.0-darwin-arm64.tar.gz'
 path = 'node-v18.7.0-darwin-arm64/bin/node'
 checksum = "sha256:ea24b35067bd0dc40ea8fda1087acc87672cbcbba881f7477dbd432e3c03343d"
+
+[win-x64]
+url = 'https://nodejs.org/dist/v18.7.0/node-v18.7.0-win-x64.zip'
+path = 'node-v18.7.0-win-x64\node.exe'
+checksum = "sha256:9c0abfe32291dd5bed717463cb3590004289f03ab66011e383daa0fcec674683"
 "#
         );
     }
@@ -99,6 +104,10 @@ checksum = "sha256:ea24b35067bd0dc40ea8fda1087acc87672cbcbba881f7477dbd432e3c033
 [macos-arm64]
 url = 'https://nodejs.org/dist/v18.7.0/node-v18.7.0-darwin-arm64.tar.gz'
 path = 'node-v18.7.0-darwin-arm64/bin/node'
+
+[win-x64]
+url = 'https://nodejs.org/dist/v18.7.0/node-v18.7.0-win-x64.zip'
+path = 'node-v18.7.0-win-x64\node.exe'
 "#,
         )
         .unwrap();

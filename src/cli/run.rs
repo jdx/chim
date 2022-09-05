@@ -39,10 +39,7 @@ mod tests {
     async fn test_app() {
         let dir = tempdir().unwrap();
         let chim_path = create_chim(&dir);
-        run(vec!["node", chim_path.to_str().unwrap(), "-v"]
-            .into_iter()
-            .map(String::from)
-            .collect())
+        run(args_to_str(vec!["node", chim_path.to_str().unwrap(), "-v"]))
             .await
             .unwrap();
     }
@@ -50,12 +47,9 @@ mod tests {
     #[tokio::test]
     async fn test_jq() {
         let chim_path = Path::new("example/jq");
-        run(vec!["node", chim_path.to_str().unwrap(), "-V"]
-            .into_iter()
-            .map(String::from)
-            .collect())
-        .await
-        .unwrap();
+        run(args_to_str(vec!["jq", chim_path.to_str().unwrap(), "-V"]))
+            .await
+            .unwrap();
     }
 
     fn create_chim(dir: &TempDir) -> PathBuf {
@@ -90,5 +84,9 @@ checksum = "sha256:9c0abfe32291dd5bed717463cb3590004289f03ab66011e383daa0fcec674
         .unwrap();
 
         filename
+    }
+
+    fn args_to_str(input: Vec<&str>) -> Vec<String> {
+        input.into_iter().map(String::from).collect()
     }
 }
