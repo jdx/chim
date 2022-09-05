@@ -58,6 +58,7 @@ impl<'a> Hooks<'a> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use pretty_assertions::assert_eq;
     use std::env::consts::{ARCH, OS};
     use std::path::Path;
 

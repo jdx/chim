@@ -47,6 +47,7 @@ fn display_mismatch_err(actual: &str, expected: &str) -> Result<()> {
 #[cfg(test)]
 mod tests {
     use super::*;
+    use pretty_assertions::assert_eq;
     use std::fs::File;
     use std::io::Write;
     use tempfile::tempdir;
