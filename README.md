@@ -1,5 +1,6 @@
 # [chim](https://chim.sh/)
 
+[![Crates.io](https://img.shields.io/crates/v/chim.svg)](https://crates.io/crates/chim)
 [![chim](https://github.com/jdxcode/chim/actions/workflows/chim.yml/badge.svg?branch=main)](https://github.com/jdxcode/chim/actions/workflows/chim.yml)
 [![codecov](https://codecov.io/gh/jdxcode/chim/branch/main/graph/badge.svg?token=CWOTCG9F5D)](https://codecov.io/gh/jdxcode/chim)
 
