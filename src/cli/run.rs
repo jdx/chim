@@ -37,6 +37,10 @@ mod tests {
 
     #[tokio::test]
     async fn test_app() {
+        if cfg!(target_os = "linux") && cfg!(target_arch = "aarch64") {
+            warn!("skipping test_app on linux-aarch64 since node binary does not work in alpine");
+            return;
+        }
         let dir = tempdir().unwrap();
         let chim_path = create_chim(&dir);
         run(args_to_str(vec!["node", chim_path.to_str().unwrap(), "-v"]))
