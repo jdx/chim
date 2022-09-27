@@ -21,13 +21,12 @@ enum Commands {
 }
 
 pub async fn parse(args: Vec<String>) -> Result<()> {
-    match args.get(1) {
-        Some(arg) => match arg.as_ref() {
+    if let Some(arg) = args.get(1) {
+        match arg.as_ref() {
             arg if arg_is_path(arg) => return run::run(args).await,
             "-v" | "version" => return version::run(),
             _ => {}
-        },
-        None => {}
+        }
     };
 
     match Cli::parse_from(args).command.unwrap() {
