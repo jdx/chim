@@ -28,7 +28,7 @@ itertools = "0.10.5"
 log = "0.4.17"
 reqwest = {version = "0.11.12", features = ["rustls-tls"], default-features = false}
 serde = "1.0.143"
-serde_derive = "1.0.143"
+serde_derive = "1.0.145"
 sha2 = "0.10.6"
 tar = "0.4.38"
 tempfile = "3.3.0"
