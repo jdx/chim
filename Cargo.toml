@@ -32,7 +32,7 @@ serde_derive = "1.0.145"
 sha2 = "0.10.6"
 tar = "0.4.38"
 tempfile = "3.3.0"
-tokio = { version = "1.21.1", features = ["full"] }
+tokio = { version = "1.21.2", features = ["full"] }
 toml = "0.5.9"
 toml_edit = "0.14.4"
 xz = "0.1.0"
