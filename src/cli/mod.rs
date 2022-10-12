@@ -2,14 +2,12 @@ mod checksums;
 mod run;
 mod version;
 
-use clap::{AppSettings, Parser, Subcommand};
+use clap::{Parser, Subcommand};
 use color_eyre::Result;
 use std::path::Path;
 
 #[derive(Debug, Parser)]
-#[clap(version, about, long_about=None, name="chim", help_expected=true, 
-    setting=AppSettings::SubcommandRequiredElseHelp,
-)]
+#[clap(version, about, long_about=None, name="chim", help_expected=true, subcommand_required=true, arg_required_else_help=true)]
 struct Cli {
     #[clap(subcommand)]
     command: Option<Commands>,
