@@ -58,7 +58,7 @@ pub struct Platform {
 impl ChimFile {
     pub fn from_file(filename: &Path) -> Result<ChimFile> {
         let body =
-            fs::read_to_string(&filename).suggestion("ensure file exists and can be read")?;
+            fs::read_to_string(filename).suggestion("ensure file exists and can be read")?;
         ChimFile::from_str(body).wrap_err("error parsing toml")
     }
 

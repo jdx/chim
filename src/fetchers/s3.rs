@@ -6,7 +6,7 @@ use std::process::Command;
 
 pub fn fetch(config: &Config, url: &str, output: &Path) -> Result<()> {
     let mut cmd = Command::new("aws");
-    cmd.args(&["s3", "cp", url, output.to_str().unwrap()]);
+    cmd.args(["s3", "cp", url, output.to_str().unwrap()]);
     add_aws_args(config, &mut cmd);
 
     let output = cmd.output()?;
