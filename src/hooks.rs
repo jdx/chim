@@ -33,7 +33,7 @@ impl<'a> Hooks<'a> {
             Some(script) => {
                 debug!("running {hook} hook: {}", script);
                 let output = Command::new("sh")
-                    .args(&["-c", script])
+                    .args(["-c", script])
                     .env("CHIM_URL", &self.config.url)
                     .env("CHIM_BIN_PATH", &self.config.bin_path)
                     .stdin(Stdio::inherit())

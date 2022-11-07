@@ -5,7 +5,7 @@ use std::process::Command;
 
 pub fn fetch(url: &str, output: &Path) -> Result<()> {
     let mut cmd = Command::new("gsutil");
-    cmd.args(&["cp", url, output.to_str().unwrap()]);
+    cmd.args(["cp", url, output.to_str().unwrap()]);
     debug!("{:?}", cmd);
 
     let output = cmd.output()?;
