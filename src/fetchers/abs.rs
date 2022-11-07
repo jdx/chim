@@ -5,7 +5,7 @@ use std::process::Command;
 
 pub fn fetch(url: &str, output: &Path) -> Result<()> {
     let mut cmd = Command::new("az");
-    cmd.args(&[
+    cmd.args([
         "storage",
         "blob",
         "download",
