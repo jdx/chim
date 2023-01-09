@@ -16,7 +16,7 @@ include = ["src/**/*", "LICENSE", "README.md"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-bzip2 = "0.4.3"
+bzip2 = "0.4.4"
 clap = { version = "4.0.32", features = ["derive"] }
 color-eyre = "0.6.2"
 dirs = "4.0.0"
