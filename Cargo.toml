@@ -17,7 +17,7 @@ include = ["src/**/*", "LICENSE", "README.md"]
 
 [dependencies]
 bzip2 = "0.4.4"
-clap = { version = "4.1.1", features = ["derive"] }
+clap = { version = "4.1.6", features = ["derive"] }
 color-eyre = "0.6.2"
 dirs = "4.0.0"
 env_logger = "0.10.0"
@@ -33,10 +33,10 @@ sha2 = "0.10.6"
 tar = "0.4.38"
 tempfile = "3.3.0"
 tokio = { version = "1.24.1", features = ["full"] }
-toml = "0.5.10"
+toml = "0.7.2"
 toml_edit = "0.17.1"
 xz = "0.1.0"
-zip = {version = "0.6.3", default-features = false, features = ["deflate"]}
+zip = {version = "0.6.4", default-features = false, features = ["deflate"]}
 
 [target.'cfg(unix)'.dependencies]
 exec = "0.3.1"
