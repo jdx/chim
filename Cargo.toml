@@ -17,7 +17,7 @@ include = ["src/**/*", "LICENSE", "README.md"]
 
 [dependencies]
 bzip2 = "0.4.4"
-clap = { version = "4.2.1", features = ["derive"] }
+clap = { version = "4.2.2", features = ["derive"] }
 color-eyre = "0.6.2"
 dirs = "5.0.0"
 env_logger = "0.10.0"
