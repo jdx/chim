@@ -21,7 +21,7 @@ clap = { version = "4.2.5", features = ["derive"] }
 color-eyre = "0.6.2"
 dirs = "5.0.1"
 env_logger = "0.10.0"
-flate2 = "1.0.25"
+flate2 = "1.0.26"
 hex = "0.4.3"
 indicatif = "0.17.3"
 itertools = "0.10.5"
