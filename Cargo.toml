@@ -31,7 +31,7 @@ serde = "1.0.164"
 serde_derive = "1.0.164"
 sha2 = "0.10.7"
 tar = "0.4.38"
-tempfile = "3.5.0"
+tempfile = "3.6.0"
 tokio = { version = "1.28.2", features = ["full"] }
 toml = "0.7.4"
 toml_edit = "0.19.10"
